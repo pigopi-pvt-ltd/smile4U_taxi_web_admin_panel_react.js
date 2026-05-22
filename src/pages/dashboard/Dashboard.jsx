@@ -6,8 +6,8 @@ import {
 } from 'react-icons/hi';
 import { 
   LineChart, Line, BarChart, Bar,
-  XAxis, YAxis, CartesianGrid, Tooltip, Legend, 
-  ResponsiveContainer, PieChart, Pie, Cell, ComposedChart
+  XAxis, YAxis, CartesianGrid, Tooltip, 
+  ResponsiveContainer, PieChart, Pie, Cell
 } from 'recharts';
 import toast from 'react-hot-toast';
 
@@ -36,7 +36,7 @@ const Dashboard = () => {
       value: '89', 
       change: '+2.1%', 
       icon: HiTruck, 
-      color: 'from-orange-500 to-orange-600',
+      color: 'from-blue-500 to-blue-600',
       trend: 'up'
     },
     { 
@@ -44,62 +44,62 @@ const Dashboard = () => {
       value: '2,345', 
       change: '+8.7%', 
       icon: HiUserGroup, 
-      color: 'from-pink-500 to-pink-600',
+      color: 'from-purple-500 to-purple-600',
       trend: 'up'
     },
   ];
 
   const dailyData = [
-    { date: 'Jan 15', bookings: 45 },
-    { date: 'Jan 16', bookings: 52 },
-    { date: 'Jan 17', bookings: 48 },
-    { date: 'Jan 18', bookings: 61 },
-    { date: 'Jan 19', bookings: 55 },
-    { date: 'Jan 20', bookings: 67 },
-    { date: 'Jan 21', bookings: 72 },
+    { date: 'Jan 15', bookings: 45, color: '#3B82F6' },
+    { date: 'Jan 16', bookings: 52, color: '#EF4444' },
+    { date: 'Jan 17', bookings: 48, color: '#10B981' },
+    { date: 'Jan 18', bookings: 61, color: '#F59E0B' },
+    { date: 'Jan 19', bookings: 55, color: '#8B5CF6' },
+    { date: 'Jan 20', bookings: 67, color: '#EC4899' },
+    { date: 'Jan 21', bookings: 72, color: '#06B6D4' },
   ];
 
   const statusData = [
-    { name: 'Completed', value: 845, color: '#00C853', percentage: 68 },
-    { name: 'Confirmed', value: 234, color: '#2196F3', percentage: 19 },
-    { name: 'Pending', value: 120, color: '#FFD700', percentage: 10 },
-    { name: 'Cancelled', value: 35, color: '#FF5252', percentage: 3 },
+    { name: 'Completed', value: 845, color: '#10B981', percentage: 68 },
+    { name: 'Confirmed', value: 234, color: '#3B82F6', percentage: 19 },
+    { name: 'Pending', value: 120, color: '#F59E0B', percentage: 10 },
+    { name: 'Cancelled', value: 35, color: '#EF4444', percentage: 3 },
   ];
 
   const monthlyData = [
-    { month: 'Aug', bookings: 285 },
-    { month: 'Sep', bookings: 324 },
-    { month: 'Oct', bookings: 368 },
-    { month: 'Nov', bookings: 412 },
-    { month: 'Dec', bookings: 456 },
-    { month: 'Jan', bookings: 489 },
+    { month: 'Aug', bookings: 285, color: '#3B82F6' },
+    { month: 'Sep', bookings: 324, color: '#EF4444' },
+    { month: 'Oct', bookings: 368, color: '#10B981' },
+    { month: 'Nov', bookings: 412, color: '#F59E0B' },
+    { month: 'Dec', bookings: 456, color: '#8B5CF6' },
+    { month: 'Jan', bookings: 489, color: '#EC4899' },
   ];
 
   const vehicleData = [
-    { name: 'Sedan', value: 45, color: '#FFD700', available: 38, maintenance: 5, booked: 2 },
-    { name: 'SUV', value: 28, color: '#00C853', available: 22, maintenance: 4, booked: 2 },
-    { name: 'Hatchback', value: 12, color: '#2196F3', available: 10, maintenance: 1, booked: 1 },
-    { name: 'Luxury', value: 4, color: '#9C27B0', available: 3, maintenance: 1, booked: 0 },
+    { name: 'Sedan', value: 45, color: '#F59E0B', available: 38, maintenance: 5, booked: 2 },
+    { name: 'SUV', value: 28, color: '#10B981', available: 22, maintenance: 4, booked: 2 },
+    { name: 'Hatchback', value: 12, color: '#3B82F6', available: 10, maintenance: 1, booked: 1 },
+    { name: 'Luxury', value: 4, color: '#8B5CF6', available: 3, maintenance: 1, booked: 0 },
   ];
 
   const topDrivers = [
-    { name: 'Mike Smith', trips: 156, rating: 4.9, earnings: 8450, avatar: 'MS' },
-    { name: 'Sarah Johnson', trips: 142, rating: 4.8, earnings: 7820, avatar: 'SJ' },
-    { name: 'David Wilson', trips: 138, rating: 4.9, earnings: 7590, avatar: 'DW' },
-    { name: 'Emily Davis', trips: 125, rating: 4.7, earnings: 6870, avatar: 'ED' },
-    { name: 'James Taylor', trips: 118, rating: 4.8, earnings: 6490, avatar: 'JT' },
+    { name: 'Mike Smith', trips: 156, rating: 4.9, earnings: 8450, avatar: 'MS', color: '#F59E0B' },
+    { name: 'Sarah Johnson', trips: 142, rating: 4.8, earnings: 7820, avatar: 'SJ', color: '#10B981' },
+    { name: 'David Wilson', trips: 138, rating: 4.9, earnings: 7590, avatar: 'DW', color: '#3B82F6' },
+    { name: 'Emily Davis', trips: 125, rating: 4.7, earnings: 6870, avatar: 'ED', color: '#8B5CF6' },
+    { name: 'James Taylor', trips: 118, rating: 4.8, earnings: 6490, avatar: 'JT', color: '#EC4899' },
   ];
 
   const peakHoursData = [
-    { hour: '6 AM', bookings: 12 },
-    { hour: '8 AM', bookings: 28 },
-    { hour: '10 AM', bookings: 35 },
-    { hour: '12 PM', bookings: 42 },
-    { hour: '2 PM', bookings: 38 },
-    { hour: '4 PM', bookings: 45 },
-    { hour: '6 PM', bookings: 52 },
-    { hour: '8 PM', bookings: 48 },
-    { hour: '10 PM', bookings: 30 },
+    { hour: '6 AM', bookings: 12, color: '#3B82F6' },
+    { hour: '8 AM', bookings: 28, color: '#EF4444' },
+    { hour: '10 AM', bookings: 35, color: '#10B981' },
+    { hour: '12 PM', bookings: 42, color: '#F59E0B' },
+    { hour: '2 PM', bookings: 38, color: '#8B5CF6' },
+    { hour: '4 PM', bookings: 45, color: '#EC4899' },
+    { hour: '6 PM', bookings: 52, color: '#06B6D4' },
+    { hour: '8 PM', bookings: 48, color: '#F97316' },
+    { hour: '10 PM', bookings: 30, color: '#A855F7' },
   ];
 
   const recentBookings = [
@@ -150,32 +150,32 @@ const Dashboard = () => {
         ))}
       </div>
 
-      {/* Refresh Button */}
-      {/* <div className="flex justify-end">
-        <button
-          onClick={handleRefresh}
-          disabled={refreshing}
-          className="px-3 py-1.5 bg-white dark:bg-gray-800 border border-gray-200 dark:border-gray-700 rounded-lg text-xs text-gray-600 dark:text-gray-300 hover:bg-gray-50 flex items-center gap-1.5"
-        >
-          <HiOutlineRefresh className={`text-sm ${refreshing ? 'animate-spin' : ''}`} />
-          {refreshing ? 'Refreshing...' : 'Refresh'}
-        </button>
-      </div> */}
-
       {/* Charts Row 1 */}
       <div className="grid grid-cols-1 lg:grid-cols-2 gap-4">
         {/* Bookings Trend */}
         <div className="bg-white dark:bg-gray-800/50 rounded-xl shadow-sm border border-gray-100 dark:border-gray-700 p-4">
           <h3 className="text-sm font-semibold text-gray-800 dark:text-white mb-3">Bookings Trend</h3>
           <ResponsiveContainer width="100%" height={250}>
-            <ComposedChart data={dailyData}>
+            <BarChart data={dailyData}>
               <CartesianGrid strokeDasharray="3 3" stroke="#374151" strokeOpacity={0.1} />
               <XAxis dataKey="date" stroke="#6B7280" fontSize={10} />
               <YAxis stroke="#6B7280" fontSize={10} />
               <Tooltip contentStyle={{ backgroundColor: '#1F2937', border: 'none', borderRadius: '6px', fontSize: '12px' }} />
-              <Bar dataKey="bookings" fill="#FFD700" name="Bookings" radius={[2, 2, 0, 0]} />
-            </ComposedChart>
+              <Bar dataKey="bookings" radius={[4, 4, 0, 0]}>
+                {dailyData.map((entry, index) => (
+                  <Cell key={`cell-${index}`} fill={entry.color} />
+                ))}
+              </Bar>
+            </BarChart>
           </ResponsiveContainer>
+          <div className="flex justify-center gap-3 mt-2 flex-wrap">
+            {dailyData.map((item, i) => (
+              <div key={i} className="flex items-center gap-1">
+                <div className="w-2 h-2 rounded-full" style={{ backgroundColor: item.color }}></div>
+                <span className="text-[10px] text-gray-500">{item.date}</span>
+              </div>
+            ))}
+          </div>
         </div>
 
         {/* Booking Status */}
@@ -193,7 +193,7 @@ const Dashboard = () => {
                 dataKey="value"
                 label={({ name, percent }) => `${name} ${(percent * 100).toFixed(0)}%`}
                 labelLine={false}
-                fontSize={10}
+                fontSize={15}
               >
                 {statusData.map((entry, index) => (
                   <Cell key={`cell-${index}`} fill={entry.color} stroke="none" />
@@ -216,9 +216,28 @@ const Dashboard = () => {
               <XAxis dataKey="month" stroke="#6B7280" fontSize={10} />
               <YAxis stroke="#6B7280" fontSize={10} />
               <Tooltip contentStyle={{ backgroundColor: '#1F2937', border: 'none', borderRadius: '6px', fontSize: '12px' }} />
-              <Line type="monotone" dataKey="bookings" stroke="#FFD700" strokeWidth={2} dot={{ fill: '#FFD700', r: 3 }} />
+              <Line 
+                type="monotone" 
+                dataKey="bookings" 
+                stroke="#8B5CF6" 
+                strokeWidth={2} 
+                dot={(props) => {
+                  const { cx, cy, payload } = props;
+                  return (
+                    <circle cx={cx} cy={cy} r={5} fill={payload.color} stroke="#fff" strokeWidth={2} />
+                  );
+                }}
+              />
             </LineChart>
           </ResponsiveContainer>
+          <div className="flex justify-center gap-3 mt-2 flex-wrap">
+            {monthlyData.map((item, i) => (
+              <div key={i} className="flex items-center gap-1">
+                <div className="w-2 h-2 rounded-full" style={{ backgroundColor: item.color }}></div>
+                <span className="text-[10px] text-gray-500">{item.month}</span>
+              </div>
+            ))}
+          </div>
         </div>
 
         {/* Peak Hours */}
@@ -230,7 +249,11 @@ const Dashboard = () => {
               <XAxis dataKey="hour" stroke="#6B7280" fontSize={9} angle={-45} textAnchor="end" height={60} />
               <YAxis stroke="#6B7280" fontSize={10} />
               <Tooltip contentStyle={{ backgroundColor: '#1F2937', border: 'none', borderRadius: '6px', fontSize: '12px' }} />
-              <Bar dataKey="bookings" fill="#FFD700" radius={[2, 2, 0, 0]} />
+              <Bar dataKey="bookings" radius={[4, 4, 0, 0]}>
+                {peakHoursData.map((entry, index) => (
+                  <Cell key={`cell-${index}`} fill={entry.color} />
+                ))}
+              </Bar>
             </BarChart>
           </ResponsiveContainer>
         </div>
@@ -243,8 +266,10 @@ const Dashboard = () => {
           {vehicleData.map((vehicle, index) => (
             <div key={index} className="bg-gray-50 dark:bg-gray-900/50 rounded-lg p-3">
               <div className="flex items-center justify-between mb-2">
-                <div className="w-6 h-6 rounded-full" style={{ backgroundColor: vehicle.color }}></div>
-                <span className="text-xl font-bold">{vehicle.value}</span>
+                <div className="w-8 h-8 rounded-lg flex items-center justify-center" style={{ backgroundColor: vehicle.color + '20' }}>
+                  <div className="w-4 h-4 rounded-full" style={{ backgroundColor: vehicle.color }}></div>
+                </div>
+                <span className="text-xl font-bold" style={{ color: vehicle.color }}>{vehicle.value}</span>
               </div>
               <p className="font-semibold text-sm">{vehicle.name}</p>
               <div className="mt-2 space-y-0.5 text-xs">
@@ -271,12 +296,7 @@ const Dashboard = () => {
         <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-5 gap-3">
           {topDrivers.map((driver, index) => (
             <div key={index} className="bg-gray-50 dark:bg-gray-900/50 rounded-lg p-3 text-center">
-              <div className={`w-10 h-10 rounded-full flex items-center justify-center mx-auto mb-2 text-sm font-bold text-white ${
-                index === 0 ? 'bg-gradient-to-br from-yellow-400 to-yellow-600' :
-                index === 1 ? 'bg-gradient-to-br from-gray-400 to-gray-600' :
-                index === 2 ? 'bg-gradient-to-br from-amber-600 to-amber-800' :
-                'bg-gradient-to-br from-blue-500 to-blue-700'
-              }`}>
+              <div className="w-10 h-10 rounded-full flex items-center justify-center mx-auto mb-2 text-sm font-bold text-white" style={{ backgroundColor: driver.color }}>
                 {driver.avatar}
               </div>
               <p className="font-semibold text-sm">{driver.name}</p>
