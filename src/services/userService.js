@@ -1,4 +1,4 @@
-import api from '../api/client';
+import api from '../utils/httpClient';
 
 const userService = {
   // Create new user

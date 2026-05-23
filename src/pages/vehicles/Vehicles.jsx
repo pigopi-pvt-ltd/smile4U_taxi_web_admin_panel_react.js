@@ -1,15 +1,13 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState } from 'react';
 import { HiSearch, HiPlus, HiOutlineEye, HiPencil, HiTrash, HiOutlinePhotograph } from 'react-icons/hi';
 import { HiArrowPath } from 'react-icons/hi2';
 import PageHeader from '../../components/common/PageHeader';
 import AddVehicleModal from './AddVehicleModal';
 import VehicleDetailsModal from './VehicleDetailsModal';
+import { useVehicles } from '../../hooks/useVehicles';
 import toast from 'react-hot-toast';
 
 const Vehicles = () => {
-  const [vehicles, setVehicles] = useState([]);
-  const [loading, setLoading] = useState(true);
-  const [refreshing, setRefreshing] = useState(false);
   const [searchTerm, setSearchTerm] = useState('');
   const [statusFilter, setStatusFilter] = useState('all');
   const [isAddModalOpen, setIsAddModalOpen] = useState(false);
@@ -17,109 +15,15 @@ const Vehicles = () => {
   const [selectedVehicle, setSelectedVehicle] = useState(null);
   const [editingVehicle, setEditingVehicle] = useState(null);
 
-  // Mock data
-  const mockVehicles = [
-    {
-      _id: 'VEH-001',
-      cabNumber: 'MH01AB1234',
-      modelName: 'Toyota Camry',
-      yearOfMaking: 2022,
-      status: 'active',
-      vendor: {
-        vendorName: 'John Doe',
-        mobile: '9876543210',
-        email: 'john@example.com',
-        address: 'Mumbai, Maharashtra',
-        gender: 'male',
-        aadhar: '1234-5678-9012',
-        pan: 'ABCDE1234F'
-      },
-      rcNumber: 'RC123456789',
-      insuranceNumber: 'INS987654321',
-      insuranceExpiryDate: '2024-12-31',
-      pollutionNumber: 'PUC123456',
-      pollutionExpiryDate: '2024-08-15',
-      permitNumber: 'PER789012345',
-      permitExpiryDate: '2025-06-30',
-      fitnessNumber: 'FIT456789012',
-      fitnessExpiryDate: '2024-10-20',
-      vehicleImages: [],
-      capacity: 4,
-      type: 'Sedan',
-      ac: true
-    },
-    {
-      _id: 'VEH-002',
-      cabNumber: 'MH02CD5678',
-      modelName: 'Honda CR-V',
-      yearOfMaking: 2021,
-      status: 'active',
-      vendor: {
-        vendorName: 'Sarah Johnson',
-        mobile: '9876543211',
-        email: 'sarah@example.com',
-        address: 'Delhi, India',
-        gender: 'female',
-        aadhar: '5678-9012-3456',
-        pan: 'FGHIJ5678K'
-      },
-      rcNumber: 'RC234567890',
-      insuranceNumber: 'INS876543210',
-      insuranceExpiryDate: '2024-11-15',
-      pollutionNumber: 'PUC234567',
-      pollutionExpiryDate: '2024-07-20',
-      permitNumber: 'PER890123456',
-      permitExpiryDate: '2025-05-25',
-      fitnessNumber: 'FIT567890123',
-      fitnessExpiryDate: '2025-01-10',
-      vehicleImages: [],
-      capacity: 5,
-      type: 'SUV',
-      ac: true
-    }
-  ];
-
-  useEffect(() => {
-    fetchData();
-  }, []);
-
-  const fetchData = () => {
-    setTimeout(() => {
-      setVehicles(mockVehicles);
-      setLoading(false);
-      setRefreshing(false);
-    }, 500);
-  };
-
-  const handleRefresh = () => {
-    setRefreshing(true);
-    setTimeout(() => {
-      setVehicles(mockVehicles);
-      setRefreshing(false);
-      toast.success('Vehicles refreshed');
-    }, 500);
-  };
-
-  const handleDeleteVehicle = (id) => {
-    if (window.confirm('Are you sure you want to delete this vehicle?')) {
-      setVehicles(prev => prev.filter(v => v._id !== id));
-      toast.success('Vehicle deleted successfully');
-    }
-  };
-
-  const handleAddVehicle = (newVehicle) => {
-    const vehicleWithId = {
-      ...newVehicle,
-      _id: `VEH-${String(vehicles.length + 1).padStart(3, '0')}`
-    };
-    setVehicles(prev => [vehicleWithId, ...prev]);
-    toast.success('Vehicle added successfully!');
-  };
-
-  const handleUpdateVehicle = (updatedVehicle) => {
-    setVehicles(prev => prev.map(v => v._id === updatedVehicle._id ? updatedVehicle : v));
-    toast.success('Vehicle updated successfully!');
-  };
+  const { 
+    vehicles, 
+    loading, 
+    refreshing, 
+    refresh, 
+    addVehicle, 
+    updateVehicle, 
+    deleteVehicle 
+  } = useVehicles();
 
   const getExpiryStatus = (expiryDate) => {
     if (!expiryDate) return null;
@@ -130,11 +34,6 @@ const Vehicles = () => {
     if (daysLeft < 0) return { color: 'bg-red-100 text-red-700', label: 'Expired' };
     if (daysLeft <= 30) return { color: 'bg-orange-100 text-orange-700', label: `${daysLeft} days left` };
     return null;
-  };
-
-  const getInitials = (name) => {
-    if (!name) return 'V';
-    return name.split(' ').map(part => part[0]).join('').toUpperCase().slice(0, 2);
   };
 
   const getStatusColor = (status) => {
@@ -148,10 +47,10 @@ const Vehicles = () => {
 
   const filteredVehicles = vehicles.filter(vehicle => {
     const matchesSearch = 
-      vehicle.cabNumber?.toLowerCase().includes(searchTerm.toLowerCase()) ||
-      vehicle.modelName?.toLowerCase().includes(searchTerm.toLowerCase()) ||
-      vehicle.vendor?.vendorName?.toLowerCase().includes(searchTerm.toLowerCase()) ||
-      vehicle.vendor?.mobile?.includes(searchTerm);
+      vehicle.plateNumber?.toLowerCase().includes(searchTerm.toLowerCase()) ||
+      vehicle.model?.toLowerCase().includes(searchTerm.toLowerCase()) ||
+      vehicle.vendorName?.toLowerCase().includes(searchTerm.toLowerCase()) ||
+      vehicle.vendorMobile?.includes(searchTerm);
     
     const matchesStatus = statusFilter === 'all' || vehicle.status === statusFilter;
     
@@ -160,8 +59,8 @@ const Vehicles = () => {
 
   if (loading) {
     return (
-      <div className="min-h-screen bg-white dark:bg-slate-900 -mt-4 sm:-mt-8 -mx-4 sm:-mx-8 animate-pulse transition-colors duration-300">
-        <div className="sticky top-16 h-[56px] z-30 bg-[#f8f9fa] dark:bg-slate-800/50 px-6 flex items-center justify-between border-b border-slate-100 dark:border-slate-800">
+      <div className="min-h-screen bg-white dark:bg-slate-900 -mt-4 sm:-mt-8 -mx-4 sm:-mx-8 animate-pulse">
+        <div className="sticky top-16 h-[56px] bg-[#f8f9fa] dark:bg-slate-800/50 px-6 flex items-center justify-between border-b">
           <div className="h-6 w-56 bg-slate-200 dark:bg-slate-700 rounded-md"></div>
           <div className="flex gap-2">
             <div className="h-9 w-28 bg-slate-200 dark:bg-slate-700 rounded-lg"></div>
@@ -179,13 +78,12 @@ const Vehicles = () => {
 
   return (
     <div className="-mt-4 sm:-mt-8 -mx-4 sm:-mx-8 animate-in fade-in duration-500">
-      <div className="bg-slate-50 dark:bg-[#0A1128] min-h-[calc(100vh-64px)] transition-colors duration-300">
+      <div className="bg-slate-50 dark:bg-[#0A1128] min-h-[calc(100vh-64px)]">
         
-        {/* Page Header Component */}
         <PageHeader
           title="Vehicles"
           count={filteredVehicles.length}
-          onRefresh={handleRefresh}
+          onRefresh={refresh}
           refreshing={refreshing}
           extraButtons={
             <button
@@ -193,7 +91,7 @@ const Vehicles = () => {
                 setEditingVehicle(null);
                 setIsAddModalOpen(true);
               }}
-              className="bg-indigo-600 hover:bg-indigo-700 dark:bg-indigo-500 dark:hover:bg-indigo-600 text-white px-3 py-1.5 md:px-5 md:py-2 rounded-lg font-bold text-[10px] md:text-sm shadow-sm transition-all duration-200 active:scale-95 cursor-pointer whitespace-nowrap"
+              className="bg-indigo-600 hover:bg-indigo-700 text-white px-3 py-1.5 md:px-5 md:py-2 rounded-lg font-bold text-[10px] md:text-sm"
             >
               <HiPlus className="text-lg md:hidden" />
               <span className="hidden md:inline">Add Vehicle</span>
@@ -202,14 +100,13 @@ const Vehicles = () => {
           }
         />
 
-        {/* Search and Filters */}
         <div className="p-4 md:p-6 space-y-4">
           <div className="flex flex-col sm:flex-row gap-4">
             <div className="relative flex-1">
               <HiSearch className="absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-400 text-lg" />
               <input
                 type="text"
-                placeholder="Search by cab number, model, vendor name or phone..."
+                placeholder="Search by plate number, model, vendor name or phone..."
                 value={searchTerm}
                 onChange={(e) => setSearchTerm(e.target.value)}
                 className="w-full pl-10 pr-4 py-2 bg-white dark:bg-gray-800 border border-gray-200 dark:border-gray-700 rounded-xl focus:outline-none focus:ring-2 focus:ring-primary-yellow"
@@ -230,7 +127,6 @@ const Vehicles = () => {
           </div>
         </div>
 
-        {/* Vehicles Table */}
         <div className="px-4 md:px-6 pb-6">
           <div className="bg-white dark:bg-gray-800/50 rounded-2xl shadow-lg border border-gray-100 dark:border-gray-700 overflow-hidden">
             <div className="overflow-x-auto">
@@ -251,26 +147,26 @@ const Vehicles = () => {
                   {filteredVehicles.map((vehicle) => {
                     const insuranceStatus = getExpiryStatus(vehicle.insuranceExpiryDate);
                     return (
-                      <tr key={vehicle._id} className="hover:bg-gray-50 dark:hover:bg-gray-700/30 transition-colors">
+                      <tr key={vehicle.id} className="hover:bg-gray-50 dark:hover:bg-gray-700/30 transition-colors">
                         <td className="px-4 py-3 whitespace-nowrap">
                           <div className="flex items-center gap-3">
                             <div className="w-10 h-10 rounded-lg bg-primary-yellow/20 flex items-center justify-center">
                               <HiOutlinePhotograph className="text-primary-yellow" />
                             </div>
                             <div>
-                              <p className="font-semibold text-gray-800 dark:text-white">{vehicle.cabNumber}</p>
-                              <p className="text-xs text-gray-500">{vehicle.type}</p>
+                              <p className="font-semibold text-gray-800 dark:text-white">{vehicle.plateNumber}</p>
+                              <p className="text-xs text-gray-500">{vehicle.vehicleType}</p>
                             </div>
                           </div>
                         </td>
                         <td className="px-4 py-3">
-                          <p className="text-sm font-medium">{vehicle.vendor?.vendorName}</p>
+                          <p className="text-sm font-medium">{vehicle.vendorName}</p>
                         </td>
                         <td className="px-4 py-3">
-                          <p className="text-sm">{vehicle.vendor?.mobile}</p>
+                          <p className="text-sm">{vehicle.vendorMobile}</p>
                         </td>
                         <td className="px-4 py-3">
-                          <p className="text-sm">{vehicle.modelName}</p>
+                          <p className="text-sm">{vehicle.model}</p>
                         </td>
                         <td className="px-4 py-3">
                           <p className="text-sm">{vehicle.yearOfMaking}</p>
@@ -287,7 +183,7 @@ const Vehicles = () => {
                         </td>
                         <td className="px-4 py-3">
                           <span className={`inline-flex px-2 py-1 text-xs font-semibold rounded-full ${getStatusColor(vehicle.status)}`}>
-                            {vehicle.status.toUpperCase()}
+                            {vehicle.status?.toUpperCase() || 'ACTIVE'}
                           </span>
                         </td>
                         <td className="px-4 py-3">
@@ -313,7 +209,7 @@ const Vehicles = () => {
                               <HiPencil className="text-lg" />
                             </button>
                             <button
-                              onClick={() => handleDeleteVehicle(vehicle._id)}
+                              onClick={() => deleteVehicle(vehicle.id, vehicle.plateNumber)}
                               className="p-2 text-gray-500 hover:text-red-500 rounded-lg hover:bg-red-50 transition-all"
                               title="Delete Vehicle"
                             >
@@ -328,31 +224,28 @@ const Vehicles = () => {
               </table>
             </div>
             
-            {/* Pagination */}
             <div className="px-4 py-3 border-t border-gray-100 dark:border-gray-700 flex items-center justify-between text-sm">
               <p className="text-gray-500">Showing {filteredVehicles.length} of {vehicles.length} vehicles</p>
               <div className="flex gap-1">
-                <button className="px-3 py-1 text-sm bg-gray-100 dark:bg-gray-700 rounded-lg hover:bg-gray-200 transition-all">Previous</button>
+                <button className="px-3 py-1 text-sm bg-gray-100 dark:bg-gray-700 rounded-lg">Previous</button>
                 <button className="px-3 py-1 text-sm bg-primary-yellow text-primary-black rounded-lg font-semibold">1</button>
-                <button className="px-3 py-1 text-sm bg-gray-100 dark:bg-gray-700 rounded-lg hover:bg-gray-200 transition-all">2</button>
-                <button className="px-3 py-1 text-sm bg-gray-100 dark:bg-gray-700 rounded-lg hover:bg-gray-200 transition-all">Next</button>
+                <button className="px-3 py-1 text-sm bg-gray-100 dark:bg-gray-700 rounded-lg">2</button>
+                <button className="px-3 py-1 text-sm bg-gray-100 dark:bg-gray-700 rounded-lg">Next</button>
               </div>
             </div>
           </div>
         </div>
 
-        {/* Add/Edit Vehicle Modal */}
         <AddVehicleModal
           isOpen={isAddModalOpen}
           onClose={() => {
             setIsAddModalOpen(false);
             setEditingVehicle(null);
           }}
-          onSave={editingVehicle ? handleUpdateVehicle : handleAddVehicle}
+          onSave={editingVehicle ? (data) => updateVehicle(editingVehicle.id, data) : addVehicle}
           editingVehicle={editingVehicle}
         />
 
-        {/* Vehicle Details Modal */}
         <VehicleDetailsModal
           isOpen={isDetailsModalOpen}
           onClose={() => {

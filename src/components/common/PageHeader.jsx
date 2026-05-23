@@ -12,7 +12,7 @@ const PageHeader = ({
   return (
     <div className="bg-[#f8f9fa] dark:bg-[#0A1128]/80 py-2.5 md:py-2 px-4 md:px-6 flex flex-row items-center justify-between gap-3 border-b border-slate-200 dark:border-slate-700 min-h-[56px] sticky top-16 z-30 backdrop-blur-md transition-colors">
       <div className="min-w-0">
-        <h2 className="text-[13px] md:text-xl font-extrabold text-primary-yellow uppercase tracking-tighter md:tracking-tight truncate">
+        <h2 className="text-[13px] md:text-xl font-extrabold text-primary-black uppercase tracking-tighter md:tracking-tight truncate">
           {title}
           {count !== undefined && (
             <span className="text-black dark:text-white font-normal font-bold pl-1 pr-1 hidden sm:inline">

@@ -1,9 +1,9 @@
 import axios from 'axios';
 import toast from 'react-hot-toast';
 
-//  Use empty baseURL to use relative paths
+// Use empty baseURL to use Vite proxy
 const api = axios.create({
-  baseURL: '',  // Empty = use current origin (localhost:5000)
+  baseURL: '',  // Empty = use current origin (localhost:5000) with proxy
   withCredentials: true,
   headers: {
     'Content-Type': 'application/json',
@@ -13,6 +13,10 @@ const api = axios.create({
 // Request interceptor for debugging
 api.interceptors.request.use(
   (config) => {
+    const token = localStorage.getItem('accessToken');
+    if (token) {
+      config.headers.Authorization = `Bearer ${token}`;
+    }
     console.log(`📤 API Request: ${config.method?.toUpperCase()} ${config.url}`);
     console.log('Full URL:', config.baseURL + config.url);
     return config;
@@ -31,7 +35,7 @@ api.interceptors.response.use(
   (error) => {
     if (error.code === 'ERR_NETWORK') {
       console.error('Network error - Backend might not be running');
-      toast.error('Cannot connect to server. Make sure backend is running on port 3000');
+      toast.error('Cannot connect to server. Make sure backend is running');
     } else if (error.response?.status === 401) {
       toast.error('Session expired. Please login again.');
       window.location.href = '/login';

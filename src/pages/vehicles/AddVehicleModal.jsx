@@ -18,13 +18,14 @@ const AddVehicleModal = ({ isOpen, onClose, onSave, editingVehicle }) => {
     vendorPan: '',
     
     // Vehicle Basic Information
-    cabNumber: '',
-    modelName: '',
+    plateNumber: '',        // Changed from cabNumber
+    model: '',              // Changed from modelName
     yearOfMaking: new Date().getFullYear(),
-    type: 'Sedan',
+    vehicleType: 'Sedan',   // Changed from type
     capacity: 4,
     ac: true,
     status: 'active',
+    make: '',               // Added - required field
     
     // RC Details
     rcNumber: '',
@@ -45,6 +46,12 @@ const AddVehicleModal = ({ isOpen, onClose, onSave, editingVehicle }) => {
     fitnessNumber: '',
     fitnessExpiryDate: '',
     
+    // Rate Information - Required fields
+    baseRatePerKm: 12,      // Required field
+    hourlyRate: 200,        // Required field
+    extraHoursSurchargeRate: 50, // Required field
+    foodSurchargeAllowance: 0,
+    
     // Documents
     rcImage: '',
     insuranceImage: '',
@@ -57,20 +64,21 @@ const AddVehicleModal = ({ isOpen, onClose, onSave, editingVehicle }) => {
   useEffect(() => {
     if (editingVehicle) {
       setFormData({
-        vendorName: editingVehicle.vendor?.vendorName || '',
-        vendorMobile: editingVehicle.vendor?.mobile || '',
-        vendorEmail: editingVehicle.vendor?.email || '',
-        vendorAddress: editingVehicle.vendor?.address || '',
-        vendorGender: editingVehicle.vendor?.gender || 'male',
-        vendorAadhar: editingVehicle.vendor?.aadhar || '',
-        vendorPan: editingVehicle.vendor?.pan || '',
-        cabNumber: editingVehicle.cabNumber || '',
-        modelName: editingVehicle.modelName || '',
+        vendorName: editingVehicle.vendorName || '',
+        vendorMobile: editingVehicle.vendorMobile || '',
+        vendorEmail: editingVehicle.vendorEmail || '',
+        vendorAddress: editingVehicle.vendorAddress || '',
+        vendorGender: editingVehicle.vendorGender || 'male',
+        vendorAadhar: editingVehicle.vendorAadhar || '',
+        vendorPan: editingVehicle.vendorPan || '',
+        plateNumber: editingVehicle.plateNumber || '',
+        model: editingVehicle.model || '',
         yearOfMaking: editingVehicle.yearOfMaking || new Date().getFullYear(),
-        type: editingVehicle.type || 'Sedan',
+        vehicleType: editingVehicle.vehicleType || 'Sedan',
         capacity: editingVehicle.capacity || 4,
         ac: editingVehicle.ac !== undefined ? editingVehicle.ac : true,
         status: editingVehicle.status || 'active',
+        make: editingVehicle.make || '',
         rcNumber: editingVehicle.rcNumber || '',
         insuranceNumber: editingVehicle.insuranceNumber || '',
         insuranceExpiryDate: editingVehicle.insuranceExpiryDate || '',
@@ -80,6 +88,10 @@ const AddVehicleModal = ({ isOpen, onClose, onSave, editingVehicle }) => {
         permitExpiryDate: editingVehicle.permitExpiryDate || '',
         fitnessNumber: editingVehicle.fitnessNumber || '',
         fitnessExpiryDate: editingVehicle.fitnessExpiryDate || '',
+        baseRatePerKm: editingVehicle.baseRatePerKm || 12,
+        hourlyRate: editingVehicle.hourlyRate || 200,
+        extraHoursSurchargeRate: editingVehicle.extraHoursSurchargeRate || 50,
+        foodSurchargeAllowance: editingVehicle.foodSurchargeAllowance || 0,
         rcImage: editingVehicle.rcImage || '',
         insuranceImage: editingVehicle.insuranceImage || '',
         pollutionImage: editingVehicle.pollutionImage || '',
@@ -95,11 +107,13 @@ const AddVehicleModal = ({ isOpen, onClose, onSave, editingVehicle }) => {
   const resetForm = () => {
     setFormData({
       vendorName: '', vendorMobile: '', vendorEmail: '', vendorAddress: '', vendorGender: 'male',
-      vendorAadhar: '', vendorPan: '', cabNumber: '', modelName: '', yearOfMaking: new Date().getFullYear(),
-      type: 'Sedan', capacity: 4, ac: true, status: 'active', rcNumber: '', insuranceNumber: '',
-      insuranceExpiryDate: '', pollutionNumber: '', pollutionExpiryDate: '', permitNumber: '',
-      permitExpiryDate: '', fitnessNumber: '', fitnessExpiryDate: '', rcImage: '', insuranceImage: '',
-      pollutionImage: '', permitImage: '', fitnessImage: '', vehicleImages: []
+      vendorAadhar: '', vendorPan: '', plateNumber: '', model: '', yearOfMaking: new Date().getFullYear(),
+      vehicleType: 'Sedan', capacity: 4, ac: true, status: 'active', make: '',
+      rcNumber: '', insuranceNumber: '', insuranceExpiryDate: '', pollutionNumber: '',
+      pollutionExpiryDate: '', permitNumber: '', permitExpiryDate: '', fitnessNumber: '',
+      fitnessExpiryDate: '', baseRatePerKm: 12, hourlyRate: 200, extraHoursSurchargeRate: 50,
+      foodSurchargeAllowance: 0, rcImage: '', insuranceImage: '', pollutionImage: '',
+      permitImage: '', fitnessImage: '', vehicleImages: []
     });
   };
 
@@ -118,23 +132,76 @@ const AddVehicleModal = ({ isOpen, onClose, onSave, editingVehicle }) => {
     e.preventDefault();
     setSubmitting(true);
     
-    if (!formData.cabNumber || !formData.modelName || !formData.vendorName || !formData.vendorMobile) {
-      toast.error('Please fill all required fields');
+    // Validate required fields
+    if (!formData.plateNumber) {
+      toast.error('Please enter plate number');
+      setSubmitting(false);
+      return;
+    }
+    if (!formData.model) {
+      toast.error('Please enter vehicle model');
+      setSubmitting(false);
+      return;
+    }
+    if (!formData.make) {
+      toast.error('Please enter vehicle make');
+      setSubmitting(false);
+      return;
+    }
+    if (!formData.vehicleType) {
+      toast.error('Please select vehicle type');
+      setSubmitting(false);
+      return;
+    }
+    if (!formData.vendorName) {
+      toast.error('Please enter vendor name');
+      setSubmitting(false);
+      return;
+    }
+    if (!formData.vendorMobile) {
+      toast.error('Please enter vendor mobile');
       setSubmitting(false);
       return;
     }
     
     const vehicleData = {
-      ...formData,
-      vendor: {
-        vendorName: formData.vendorName,
-        mobile: formData.vendorMobile,
-        email: formData.vendorEmail,
-        address: formData.vendorAddress,
-        gender: formData.vendorGender,
-        aadhar: formData.vendorAadhar,
-        pan: formData.vendorPan
-      }
+      // Required fields
+      plateNumber: formData.plateNumber,
+      model: formData.model,
+      make: formData.make,
+      vehicleType: formData.vehicleType,
+      baseRatePerKm: formData.baseRatePerKm,
+      hourlyRate: formData.hourlyRate,
+      extraHoursSurchargeRate: formData.extraHoursSurchargeRate,
+      foodSurchargeAllowance: formData.foodSurchargeAllowance,
+      
+      // Optional fields
+      vendorName: formData.vendorName,
+      vendorMobile: formData.vendorMobile,
+      vendorEmail: formData.vendorEmail,
+      vendorAddress: formData.vendorAddress,
+      vendorGender: formData.vendorGender,
+      vendorAadhar: formData.vendorAadhar,
+      vendorPan: formData.vendorPan,
+      yearOfMaking: formData.yearOfMaking,
+      capacity: formData.capacity,
+      ac: formData.ac,
+      status: formData.status,
+      rcNumber: formData.rcNumber,
+      insuranceNumber: formData.insuranceNumber,
+      insuranceExpiryDate: formData.insuranceExpiryDate,
+      pollutionNumber: formData.pollutionNumber,
+      pollutionExpiryDate: formData.pollutionExpiryDate,
+      permitNumber: formData.permitNumber,
+      permitExpiryDate: formData.permitExpiryDate,
+      fitnessNumber: formData.fitnessNumber,
+      fitnessExpiryDate: formData.fitnessExpiryDate,
+      rcImage: formData.rcImage,
+      insuranceImage: formData.insuranceImage,
+      pollutionImage: formData.pollutionImage,
+      permitImage: formData.permitImage,
+      fitnessImage: formData.fitnessImage,
+      vehicleImages: formData.vehicleImages
     };
     
     onSave(vehicleData);
@@ -212,6 +279,149 @@ const AddVehicleModal = ({ isOpen, onClose, onSave, editingVehicle }) => {
         </div>
 
         <form onSubmit={handleSubmit} className="p-6 space-y-6">
+          {/* Vehicle Basic Information - Required Fields First */}
+          <div className="space-y-3">
+            <h3 className="text-base font-semibold text-gray-800 dark:text-white">Vehicle Information (Required)</h3>
+            <div className="grid grid-cols-1 md:grid-cols-3 gap-3">
+              <div>
+                <label className="block text-xs font-medium mb-1">Plate Number *</label>
+                <input
+                  type="text"
+                  required
+                  value={formData.plateNumber}
+                  onChange={(e) => setFormData({ ...formData, plateNumber: e.target.value.toUpperCase() })}
+                  className="w-full px-3 py-2 text-sm border rounded-lg focus:outline-none focus:ring-2 focus:ring-primary-yellow dark:bg-gray-800 uppercase"
+                  placeholder="MH01AB1234"
+                />
+              </div>
+              <div>
+                <label className="block text-xs font-medium mb-1">Make / Brand *</label>
+                <input
+                  type="text"
+                  required
+                  value={formData.make}
+                  onChange={(e) => setFormData({ ...formData, make: e.target.value })}
+                  className="w-full px-3 py-2 text-sm border rounded-lg focus:outline-none focus:ring-2 focus:ring-primary-yellow dark:bg-gray-800"
+                  placeholder="Toyota, Honda, etc."
+                />
+              </div>
+              <div>
+                <label className="block text-xs font-medium mb-1">Model *</label>
+                <input
+                  type="text"
+                  required
+                  value={formData.model}
+                  onChange={(e) => setFormData({ ...formData, model: e.target.value })}
+                  className="w-full px-3 py-2 text-sm border rounded-lg focus:outline-none focus:ring-2 focus:ring-primary-yellow dark:bg-gray-800"
+                  placeholder="Camry, City, etc."
+                />
+              </div>
+              <div>
+                <label className="block text-xs font-medium mb-1">Vehicle Type *</label>
+                <select
+                  required
+                  value={formData.vehicleType}
+                  onChange={(e) => setFormData({ ...formData, vehicleType: e.target.value })}
+                  className="w-full px-3 py-2 text-sm border rounded-lg focus:outline-none focus:ring-2 focus:ring-primary-yellow dark:bg-gray-800"
+                >
+                  <option value="Sedan">Sedan</option>
+                  <option value="SUV">SUV</option>
+                  <option value="MPV">MPV</option>
+                  <option value="Hatchback">Hatchback</option>
+                  <option value="Luxury">Luxury</option>
+                </select>
+              </div>
+              <div>
+                <label className="block text-xs font-medium mb-1">Year of Making</label>
+                <input
+                  type="number"
+                  value={formData.yearOfMaking}
+                  onChange={(e) => setFormData({ ...formData, yearOfMaking: parseInt(e.target.value) })}
+                  className="w-full px-3 py-2 text-sm border rounded-lg focus:outline-none focus:ring-2 focus:ring-primary-yellow dark:bg-gray-800"
+                  placeholder="2023"
+                />
+              </div>
+              <div>
+                <label className="block text-xs font-medium mb-1">Seating Capacity</label>
+                <select
+                  value={formData.capacity}
+                  onChange={(e) => setFormData({ ...formData, capacity: parseInt(e.target.value) })}
+                  className="w-full px-3 py-2 text-sm border rounded-lg focus:outline-none focus:ring-2 focus:ring-primary-yellow dark:bg-gray-800"
+                >
+                  <option value="2">2 Seater</option>
+                  <option value="4">4 Seater</option>
+                  <option value="5">5 Seater</option>
+                  <option value="6">6 Seater</option>
+                  <option value="7">7 Seater</option>
+                  <option value="8">8 Seater</option>
+                </select>
+              </div>
+              <div>
+                <label className="block text-xs font-medium mb-1">AC Availability</label>
+                <select
+                  value={formData.ac}
+                  onChange={(e) => setFormData({ ...formData, ac: e.target.value === 'true' })}
+                  className="w-full px-3 py-2 text-sm border rounded-lg focus:outline-none focus:ring-2 focus:ring-primary-yellow dark:bg-gray-800"
+                >
+                  <option value="true">Yes (AC)</option>
+                  <option value="false">No (Non-AC)</option>
+                </select>
+              </div>
+              <div>
+                <label className="block text-xs font-medium mb-1">Status</label>
+                <select
+                  value={formData.status}
+                  onChange={(e) => setFormData({ ...formData, status: e.target.value })}
+                  className="w-full px-3 py-2 text-sm border rounded-lg focus:outline-none focus:ring-2 focus:ring-primary-yellow dark:bg-gray-800"
+                >
+                  <option value="active">Active</option>
+                  <option value="inactive">Inactive</option>
+                  <option value="maintenance">Maintenance</option>
+                </select>
+              </div>
+            </div>
+          </div>
+
+          {/* Rate Information */}
+          <div className="space-y-3">
+            <h3 className="text-base font-semibold text-gray-800 dark:text-white">Rate Information</h3>
+            <div className="grid grid-cols-1 md:grid-cols-3 gap-3">
+              <div>
+                <label className="block text-xs font-medium mb-1">Base Rate Per KM (₹) *</label>
+                <input
+                  type="number"
+                  required
+                  value={formData.baseRatePerKm}
+                  onChange={(e) => setFormData({ ...formData, baseRatePerKm: parseInt(e.target.value) })}
+                  className="w-full px-3 py-2 text-sm border rounded-lg focus:outline-none focus:ring-2 focus:ring-primary-yellow dark:bg-gray-800"
+                  placeholder="12"
+                />
+              </div>
+              <div>
+                <label className="block text-xs font-medium mb-1">Hourly Rate (₹) *</label>
+                <input
+                  type="number"
+                  required
+                  value={formData.hourlyRate}
+                  onChange={(e) => setFormData({ ...formData, hourlyRate: parseInt(e.target.value) })}
+                  className="w-full px-3 py-2 text-sm border rounded-lg focus:outline-none focus:ring-2 focus:ring-primary-yellow dark:bg-gray-800"
+                  placeholder="200"
+                />
+              </div>
+              <div>
+                <label className="block text-xs font-medium mb-1">Extra Hours Surcharge (₹) *</label>
+                <input
+                  type="number"
+                  required
+                  value={formData.extraHoursSurchargeRate}
+                  onChange={(e) => setFormData({ ...formData, extraHoursSurchargeRate: parseInt(e.target.value) })}
+                  className="w-full px-3 py-2 text-sm border rounded-lg focus:outline-none focus:ring-2 focus:ring-primary-yellow dark:bg-gray-800"
+                  placeholder="50"
+                />
+              </div>
+            </div>
+          </div>
+
           {/* Vendor Information */}
           <div className="space-y-3">
             <h3 className="text-base font-semibold text-gray-800 dark:text-white">Vendor Information</h3>
@@ -293,104 +503,21 @@ const AddVehicleModal = ({ isOpen, onClose, onSave, editingVehicle }) => {
             </div>
           </div>
 
-          {/* Vehicle Basic Information */}
+          {/* RC Details */}
           <div className="space-y-3">
-            <h3 className="text-base font-semibold text-gray-800 dark:text-white">Vehicle Information</h3>
-            <div className="grid grid-cols-1 md:grid-cols-4 gap-3">
-              <div>
-                <label className="block text-xs font-medium mb-1">Cab Number *</label>
-                <input
-                  type="text"
-                  required
-                  value={formData.cabNumber}
-                  onChange={(e) => setFormData({ ...formData, cabNumber: e.target.value })}
-                  className="w-full px-3 py-2 text-sm border rounded-lg focus:outline-none focus:ring-2 focus:ring-primary-yellow dark:bg-gray-800 uppercase"
-                  placeholder="MH01AB1234"
-                />
-              </div>
-              <div>
-                <label className="block text-xs font-medium mb-1">Model Name *</label>
-                <input
-                  type="text"
-                  required
-                  value={formData.modelName}
-                  onChange={(e) => setFormData({ ...formData, modelName: e.target.value })}
-                  className="w-full px-3 py-2 text-sm border rounded-lg focus:outline-none focus:ring-2 focus:ring-primary-yellow dark:bg-gray-800"
-                  placeholder="Toyota Camry"
-                />
-              </div>
-              <div>
-                <label className="block text-xs font-medium mb-1">Year of Making</label>
-                <input
-                  type="number"
-                  value={formData.yearOfMaking}
-                  onChange={(e) => setFormData({ ...formData, yearOfMaking: parseInt(e.target.value) })}
-                  className="w-full px-3 py-2 text-sm border rounded-lg focus:outline-none focus:ring-2 focus:ring-primary-yellow dark:bg-gray-800"
-                  placeholder="2023"
-                />
-              </div>
-              <div>
-                <label className="block text-xs font-medium mb-1">Vehicle Type</label>
-                <select
-                  value={formData.type}
-                  onChange={(e) => setFormData({ ...formData, type: e.target.value })}
-                  className="w-full px-3 py-2 text-sm border rounded-lg focus:outline-none focus:ring-2 focus:ring-primary-yellow dark:bg-gray-800"
-                >
-                  <option value="Sedan">Sedan</option>
-                  <option value="SUV">SUV</option>
-                  <option value="MPV">MPV</option>
-                  <option value="Hatchback">Hatchback</option>
-                  <option value="Luxury">Luxury</option>
-                </select>
-              </div>
-              <div>
-                <label className="block text-xs font-medium mb-1">Seating Capacity</label>
-                <select
-                  value={formData.capacity}
-                  onChange={(e) => setFormData({ ...formData, capacity: parseInt(e.target.value) })}
-                  className="w-full px-3 py-2 text-sm border rounded-lg focus:outline-none focus:ring-2 focus:ring-primary-yellow dark:bg-gray-800"
-                >
-                  <option value="2">2 Seater</option>
-                  <option value="4">4 Seater</option>
-                  <option value="5">5 Seater</option>
-                  <option value="6">6 Seater</option>
-                  <option value="7">7 Seater</option>
-                  <option value="8">8 Seater</option>
-                </select>
-              </div>
-              <div>
-                <label className="block text-xs font-medium mb-1">AC Availability</label>
-                <select
-                  value={formData.ac}
-                  onChange={(e) => setFormData({ ...formData, ac: e.target.value === 'true' })}
-                  className="w-full px-3 py-2 text-sm border rounded-lg focus:outline-none focus:ring-2 focus:ring-primary-yellow dark:bg-gray-800"
-                >
-                  <option value="true">Yes (AC)</option>
-                  <option value="false">No (Non-AC)</option>
-                </select>
-              </div>
-              <div>
-                <label className="block text-xs font-medium mb-1">Status</label>
-                <select
-                  value={formData.status}
-                  onChange={(e) => setFormData({ ...formData, status: e.target.value })}
-                  className="w-full px-3 py-2 text-sm border rounded-lg focus:outline-none focus:ring-2 focus:ring-primary-yellow dark:bg-gray-800"
-                >
-                  <option value="active">Active</option>
-                  <option value="inactive">Inactive</option>
-                  <option value="maintenance">Maintenance</option>
-                </select>
-              </div>
+            <h3 className="text-base font-semibold text-gray-800 dark:text-white">RC Details</h3>
+            <div className="grid grid-cols-1 md:grid-cols-2 gap-3">
               <div>
                 <label className="block text-xs font-medium mb-1">RC Number</label>
                 <input
                   type="text"
                   value={formData.rcNumber}
-                  onChange={(e) => setFormData({ ...formData, rcNumber: e.target.value })}
+                  onChange={(e) => setFormData({ ...formData, rcNumber: e.target.value.toUpperCase() })}
                   className="w-full px-3 py-2 text-sm border rounded-lg focus:outline-none focus:ring-2 focus:ring-primary-yellow dark:bg-gray-800 uppercase"
                   placeholder="RC123456789"
                 />
               </div>
+              <DocumentUploadCard title="RC Document" description="Upload RC certificate" field="rcImage" existingUrl={formData.rcImage} />
             </div>
           </div>
 
@@ -510,11 +637,6 @@ const AddVehicleModal = ({ isOpen, onClose, onSave, editingVehicle }) => {
                 </div>
               </div>
               <DocumentUploadCard title="Fitness Certificate" description="Upload fitness certificate" field="fitnessImage" existingUrl={formData.fitnessImage} />
-            </div>
-
-            {/* RC Document */}
-            <div className="p-3 rounded-lg border-2 border-gray-200">
-              <DocumentUploadCard title="RC Document" description="Upload registration certificate" field="rcImage" existingUrl={formData.rcImage} />
             </div>
           </div>
 
