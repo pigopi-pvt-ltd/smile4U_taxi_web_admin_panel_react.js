@@ -1,46 +1,49 @@
 import React, { useState, useEffect } from 'react';
-import { HiX, HiOutlineCloudUpload, HiUser, HiMail, HiPhone, HiCalendar, HiIdentification, HiCreditCard, HiLocationMarker, HiTruck } from 'react-icons/hi';
+import { HiX, HiUser, HiMail, HiPhone, HiCalendar, HiIdentification, HiCreditCard, HiLocationMarker, HiTruck } from 'react-icons/hi';
 import toast from 'react-hot-toast';
+import api from '../../utils/httpClient';
+import FileUpload from '../../components/common/FileUpload';
 
 const AddDriverModal = ({ isOpen, onClose, onSave, editingDriver }) => {
   const [uploading, setUploading] = useState(false);
   const [submitting, setSubmitting] = useState(false);
-  const [tempPassword, setTempPassword] = useState(null);
   
   const [formData, setFormData] = useState({
-    // Personal Information
-    fullName: '',
+    // Personal Information (Required)
+    name: '',
     email: '',
-    mobile: '',
+    phone: '',
+    password: '',
+    licenseNumber: '',
+    
+    // Personal Details (Optional)
+    fullName: '',
     dateOfBirth: '',
-    gender: '',
     yearsOfExperience: '',
-    
-    // License Information
-    drivingLicenseNumber: '',
-    dlExpiryDate: '',
-    
-    // Address
+    gender: '',
     presentAddress: '',
     permanentAddress: '',
+    alternateMobile: '',
+    aadhar: '',
+    pan: '',
+    highestQualification: '',
     
-    // Vehicle Information
-    vehicleRegNumber: '',
-    vehicleType: 'Sedan',
-    vehicleMake: '',
-    vehicleModel: '',
-    vehicleYear: '',
-    
-    // Bank Information
+    // Bank Information (Optional)
     accountHolderName: '',
     bankName: '',
     accountNumber: '',
     ifscCode: '',
     
-    // Documents
-    aadharNumber: '',
-    panNumber: '',
-    profilePhoto: '',
+    // Vehicle Information (Optional)
+    vehicleRegNumber: '',
+    vehicleType: 'Sedan',
+    vehicleMake: '',
+    vehicleModel: '',
+    vehicleYear: '',
+    dlExpiryDate: '',
+    
+    // Documents (Optional)
+    image: '',
     aadharFront: '',
     aadharBack: '',
     panImage: '',
@@ -51,28 +54,32 @@ const AddDriverModal = ({ isOpen, onClose, onSave, editingDriver }) => {
     if (editingDriver) {
       const details = editingDriver.driverDetails || {};
       setFormData({
-        fullName: editingDriver.name || '',
+        name: editingDriver.name || '',
         email: editingDriver.email || '',
-        mobile: editingDriver.mobileNumber || '',
+        phone: editingDriver.mobileNumber || '',
+        password: '',
+        licenseNumber: details.licenseNumber || '',
+        fullName: details.fullName || '',
         dateOfBirth: details.dateOfBirth || '',
-        gender: details.gender || '',
         yearsOfExperience: details.yearsOfExperience?.toString() || '',
-        drivingLicenseNumber: details.drivingLicenseNumber || '',
-        dlExpiryDate: details.dlExpiryDate || '',
+        gender: details.gender || '',
         presentAddress: details.presentAddress || '',
         permanentAddress: details.permanentAddress || '',
+        alternateMobile: details.alternateMobile || '',
+        aadhar: details.aadhar || '',
+        pan: details.pan || '',
+        highestQualification: details.highestQualification || '',
+        accountHolderName: details.accountHolderName || '',
+        bankName: details.bankName || '',
+        accountNumber: details.accountNumber || '',
+        ifscCode: details.ifscCode || '',
         vehicleRegNumber: details.vehicleRegNumber || '',
         vehicleType: details.vehicleType || 'Sedan',
         vehicleMake: details.vehicleMake || '',
         vehicleModel: details.vehicleModel || '',
         vehicleYear: details.vehicleYear?.toString() || '',
-        accountHolderName: details.accountHolderName || '',
-        bankName: details.bankName || '',
-        accountNumber: details.accountNumber || '',
-        ifscCode: details.ifscCode || '',
-        aadharNumber: details.aadhar || '',
-        panNumber: details.pan || '',
-        profilePhoto: editingDriver.profilePhoto || details.kycDocuments?.profilePhoto || '',
+        dlExpiryDate: details.dlExpiryDate || '',
+        image: editingDriver.image || '',
         aadharFront: details.kycDocuments?.aadharFront || '',
         aadharBack: details.kycDocuments?.aadharBack || '',
         panImage: details.kycDocuments?.panImage || '',
@@ -85,115 +92,80 @@ const AddDriverModal = ({ isOpen, onClose, onSave, editingDriver }) => {
 
   const resetForm = () => {
     setFormData({
-      fullName: '', email: '', mobile: '', dateOfBirth: '', gender: '', yearsOfExperience: '',
-      drivingLicenseNumber: '', dlExpiryDate: '', presentAddress: '', permanentAddress: '',
-      vehicleRegNumber: '', vehicleType: 'Sedan', vehicleMake: '', vehicleModel: '', vehicleYear: '',
+      name: '', email: '', phone: '', password: '', licenseNumber: '',
+      fullName: '', dateOfBirth: '', yearsOfExperience: '', gender: '',
+      presentAddress: '', permanentAddress: '', alternateMobile: '',
+      aadhar: '', pan: '', highestQualification: '',
       accountHolderName: '', bankName: '', accountNumber: '', ifscCode: '',
-      aadharNumber: '', panNumber: '', profilePhoto: '', aadharFront: '', aadharBack: '', panImage: '', licenseImage: ''
+      vehicleRegNumber: '', vehicleType: 'Sedan', vehicleMake: '', vehicleModel: '', vehicleYear: '', dlExpiryDate: '',
+      image: '', aadharFront: '', aadharBack: '', panImage: '', licenseImage: ''
     });
-    setTempPassword(null);
   };
 
-  const handleFileUpload = async (field, file) => {
-    setUploading(true);
-    // Simulate upload - replace with actual API call
-    setTimeout(() => {
-      const fakeUrl = URL.createObjectURL(file);
-      setFormData(prev => ({ ...prev, [field]: fakeUrl }));
-      toast.success(`${field} uploaded successfully`);
-      setUploading(false);
-    }, 1500);
+  const handleFileUploadComplete = (field, url) => {
+      console.log(`Saving URL for ${field}:`, url); 
+    setFormData(prev => ({ ...prev, [field]: url }));
   };
 
   const handleSubmit = async (e) => {
     e.preventDefault();
     setSubmitting(true);
     
-    // Simulate API call
-    setTimeout(() => {
-      const driverData = {
-        name: formData.fullName,
-        email: formData.email,
-        mobileNumber: formData.mobile,
-        profilePhoto: formData.profilePhoto,
-        driverDetails: {
-          fullName: formData.fullName,
-          dateOfBirth: formData.dateOfBirth,
-          gender: formData.gender,
-          yearsOfExperience: parseInt(formData.yearsOfExperience),
-          drivingLicenseNumber: formData.drivingLicenseNumber,
-          dlExpiryDate: formData.dlExpiryDate,
-          presentAddress: formData.presentAddress,
-          permanentAddress: formData.permanentAddress,
-          vehicleRegNumber: formData.vehicleRegNumber,
-          vehicleType: formData.vehicleType,
-          vehicleMake: formData.vehicleMake,
-          vehicleModel: formData.vehicleModel,
-          vehicleYear: parseInt(formData.vehicleYear),
-          accountHolderName: formData.accountHolderName,
-          bankName: formData.bankName,
-          accountNumber: formData.accountNumber,
-          ifscCode: formData.ifscCode,
-          aadhar: formData.aadharNumber,
-          pan: formData.panNumber,
-          kycDocuments: {
-            profilePhoto: formData.profilePhoto,
-            aadharFront: formData.aadharFront,
-            aadharBack: formData.aadharBack,
-            panImage: formData.panImage,
-            licenseImage: formData.licenseImage
-          }
-        }
-      };
-
-      if (!editingDriver) {
-        const generatedPassword = 'Driver@' + Math.random().toString(36).slice(2, 8);
-        driverData.temporaryPassword = generatedPassword;
-      }
-
-      onSave(driverData);
+    // Validate required fields
+    if (!formData.name) {
+      toast.error('Please enter driver name');
       setSubmitting(false);
-      onClose();
-      resetForm();
-    }, 1500);
-  };
-
-  const DocumentUploadCard = ({ title, description, field, accept = "image/*", existingUrl }) => {
-    const displayUrl = existingUrl || formData[field];
-    return (
-      <div className="bg-gray-50 dark:bg-gray-800/30 border-2 border-dashed border-gray-200 dark:border-gray-700 rounded-xl p-4 text-center hover:border-primary-yellow transition-all">
-        <div className="w-12 h-12 bg-white dark:bg-gray-800 rounded-full flex items-center justify-center mx-auto mb-3 shadow-md">
-          <HiOutlineCloudUpload className="text-2xl text-gray-400" />
-        </div>
-        <h3 className="font-semibold text-sm text-gray-800 dark:text-white mb-1">{title}</h3>
-        <p className="text-xs text-gray-500 dark:text-gray-400 mb-3">{description}</p>
-        
-        {displayUrl && (
-          <div className="mb-3">
-            <img src={displayUrl} alt={title} className="max-h-20 mx-auto rounded-lg" />
-          </div>
-        )}
-        
-        <input
-          type="file"
-          id={`upload-${field}`}
-          accept={accept}
-          className="hidden"
-          onChange={(e) => {
-            const file = e.target.files?.[0];
-            if (file) handleFileUpload(field, file);
-          }}
-        />
-        <button
-          type="button"
-          onClick={() => document.getElementById(`upload-${field}`)?.click()}
-          disabled={uploading}
-          className="px-3 py-1.5 bg-primary-yellow text-primary-black text-xs rounded-lg font-semibold hover:bg-yellow-500 transition-all"
-        >
-          {uploading ? 'Uploading...' : 'Upload'}
-        </button>
-      </div>
-    );
+      return;
+    }
+    if (!formData.email && !formData.phone) {
+      toast.error('Please enter either email or phone number');
+      setSubmitting(false);
+      return;
+    }
+    if (!formData.licenseNumber) {
+      toast.error('Please enter license number');
+      setSubmitting(false);
+      return;
+    }
+    
+    // Send data exactly as backend expects
+    const driverData = {
+      name: formData.name,
+      email: formData.email || undefined,
+      phone: formData.phone || undefined,
+      password: formData.password || undefined,
+      licenseNumber: formData.licenseNumber,
+      fullName: formData.fullName || undefined,
+      dateOfBirth: formData.dateOfBirth || undefined,
+      yearsOfExperience: formData.yearsOfExperience ? parseInt(formData.yearsOfExperience) : undefined,
+      gender: formData.gender || undefined,
+      presentAddress: formData.presentAddress || undefined,
+      permanentAddress: formData.permanentAddress || undefined,
+      alternateMobile: formData.alternateMobile || undefined,
+      aadhar: formData.aadhar || undefined,
+      pan: formData.pan || undefined,
+      highestQualification: formData.highestQualification || undefined,
+      accountHolderName: formData.accountHolderName || undefined,
+      bankName: formData.bankName || undefined,
+      accountNumber: formData.accountNumber || undefined,
+      ifscCode: formData.ifscCode || undefined,
+      vehicleRegNumber: formData.vehicleRegNumber || undefined,
+      vehicleType: formData.vehicleType || undefined,
+      vehicleMake: formData.vehicleMake || undefined,
+      vehicleModel: formData.vehicleModel || undefined,
+      vehicleYear: formData.vehicleYear ? parseInt(formData.vehicleYear) : undefined,
+      dlExpiryDate: formData.dlExpiryDate || undefined,
+      image: formData.image || undefined,
+      aadharFront: formData.aadharFront || undefined,
+      aadharBack: formData.aadharBack || undefined,
+      panImage: formData.panImage || undefined,
+      licenseImage: formData.licenseImage || undefined
+    };
+    
+    onSave(driverData);
+    setSubmitting(false);
+    onClose();
+    resetForm();
   };
 
   if (!isOpen) return null;
@@ -222,32 +194,54 @@ const AddDriverModal = ({ isOpen, onClose, onSave, editingDriver }) => {
                 <input
                   type="text"
                   required
-                  value={formData.fullName}
-                  onChange={(e) => setFormData({ ...formData, fullName: e.target.value })}
-                  className="w-full px-4 py-2 border rounded-lg focus:outline-none focus:ring-2 focus:ring-primary-yellow"
+                  value={formData.name}
+                  onChange={(e) => setFormData({ ...formData, name: e.target.value })}
+                  className="w-full px-4 py-2 border rounded-lg focus:outline-none focus:ring-2 focus:ring-primary-yellow dark:bg-gray-800"
                   placeholder="Enter full name"
                 />
               </div>
               <div>
-                <label className="block text-sm font-medium mb-1">Email *</label>
+                <label className="block text-sm font-medium mb-1">Email</label>
                 <input
                   type="email"
-                  required
                   value={formData.email}
                   onChange={(e) => setFormData({ ...formData, email: e.target.value })}
-                  className="w-full px-4 py-2 border rounded-lg focus:outline-none focus:ring-2 focus:ring-primary-yellow"
+                  className="w-full px-4 py-2 border rounded-lg focus:outline-none focus:ring-2 focus:ring-primary-yellow dark:bg-gray-800"
                   placeholder="driver@example.com"
                 />
+                <p className="text-xs text-gray-500 mt-1">Either email or phone is required</p>
               </div>
               <div>
-                <label className="block text-sm font-medium mb-1">Mobile Number *</label>
+                <label className="block text-sm font-medium mb-1">Phone Number</label>
                 <input
                   type="tel"
-                  required
-                  value={formData.mobile}
-                  onChange={(e) => setFormData({ ...formData, mobile: e.target.value })}
-                  className="w-full px-4 py-2 border rounded-lg focus:outline-none focus:ring-2 focus:ring-primary-yellow"
+                  value={formData.phone}
+                  onChange={(e) => setFormData({ ...formData, phone: e.target.value })}
+                  className="w-full px-4 py-2 border rounded-lg focus:outline-none focus:ring-2 focus:ring-primary-yellow dark:bg-gray-800"
                   placeholder="+1 234 567 8900"
+                />
+              </div>
+              {!editingDriver && (
+                <div>
+                  <label className="block text-sm font-medium mb-1">Password</label>
+                  <input
+                    type="password"
+                    value={formData.password}
+                    onChange={(e) => setFormData({ ...formData, password: e.target.value })}
+                    className="w-full px-4 py-2 border rounded-lg focus:outline-none focus:ring-2 focus:ring-primary-yellow dark:bg-gray-800"
+                    placeholder="Leave empty for auto-generated"
+                  />
+                </div>
+              )}
+              <div>
+                <label className="block text-sm font-medium mb-1">License Number *</label>
+                <input
+                  type="text"
+                  required
+                  value={formData.licenseNumber}
+                  onChange={(e) => setFormData({ ...formData, licenseNumber: e.target.value })}
+                  className="w-full px-4 py-2 border rounded-lg focus:outline-none focus:ring-2 focus:ring-primary-yellow dark:bg-gray-800 uppercase"
+                  placeholder="DL123456789"
                 />
               </div>
               <div>
@@ -256,7 +250,7 @@ const AddDriverModal = ({ isOpen, onClose, onSave, editingDriver }) => {
                   type="date"
                   value={formData.dateOfBirth}
                   onChange={(e) => setFormData({ ...formData, dateOfBirth: e.target.value })}
-                  className="w-full px-4 py-2 border rounded-lg focus:outline-none focus:ring-2 focus:ring-primary-yellow"
+                  className="w-full px-4 py-2 border rounded-lg focus:outline-none focus:ring-2 focus:ring-primary-yellow dark:bg-gray-800"
                 />
               </div>
               <div>
@@ -264,7 +258,7 @@ const AddDriverModal = ({ isOpen, onClose, onSave, editingDriver }) => {
                 <select
                   value={formData.gender}
                   onChange={(e) => setFormData({ ...formData, gender: e.target.value })}
-                  className="w-full px-4 py-2 border rounded-lg focus:outline-none focus:ring-2 focus:ring-primary-yellow"
+                  className="w-full px-4 py-2 border rounded-lg focus:outline-none focus:ring-2 focus:ring-primary-yellow dark:bg-gray-800"
                 >
                   <option value="">Select Gender</option>
                   <option value="male">Male</option>
@@ -278,7 +272,7 @@ const AddDriverModal = ({ isOpen, onClose, onSave, editingDriver }) => {
                   type="number"
                   value={formData.yearsOfExperience}
                   onChange={(e) => setFormData({ ...formData, yearsOfExperience: e.target.value })}
-                  className="w-full px-4 py-2 border rounded-lg focus:outline-none focus:ring-2 focus:ring-primary-yellow"
+                  className="w-full px-4 py-2 border rounded-lg focus:outline-none focus:ring-2 focus:ring-primary-yellow dark:bg-gray-800"
                   placeholder="Years"
                 />
               </div>
@@ -292,23 +286,12 @@ const AddDriverModal = ({ isOpen, onClose, onSave, editingDriver }) => {
             </h3>
             <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
               <div>
-                <label className="block text-sm font-medium mb-1">Driving License Number *</label>
-                <input
-                  type="text"
-                  required
-                  value={formData.drivingLicenseNumber}
-                  onChange={(e) => setFormData({ ...formData, drivingLicenseNumber: e.target.value })}
-                  className="w-full px-4 py-2 border rounded-lg focus:outline-none focus:ring-2 focus:ring-primary-yellow"
-                  placeholder="DL123456789"
-                />
-              </div>
-              <div>
                 <label className="block text-sm font-medium mb-1">License Expiry Date</label>
                 <input
                   type="date"
                   value={formData.dlExpiryDate}
                   onChange={(e) => setFormData({ ...formData, dlExpiryDate: e.target.value })}
-                  className="w-full px-4 py-2 border rounded-lg focus:outline-none focus:ring-2 focus:ring-primary-yellow"
+                  className="w-full px-4 py-2 border rounded-lg focus:outline-none focus:ring-2 focus:ring-primary-yellow dark:bg-gray-800"
                 />
               </div>
             </div>
@@ -326,7 +309,7 @@ const AddDriverModal = ({ isOpen, onClose, onSave, editingDriver }) => {
                   rows="2"
                   value={formData.presentAddress}
                   onChange={(e) => setFormData({ ...formData, presentAddress: e.target.value })}
-                  className="w-full px-4 py-2 border rounded-lg focus:outline-none focus:ring-2 focus:ring-primary-yellow"
+                  className="w-full px-4 py-2 border rounded-lg focus:outline-none focus:ring-2 focus:ring-primary-yellow dark:bg-gray-800"
                   placeholder="Enter present address"
                 />
               </div>
@@ -336,7 +319,7 @@ const AddDriverModal = ({ isOpen, onClose, onSave, editingDriver }) => {
                   rows="2"
                   value={formData.permanentAddress}
                   onChange={(e) => setFormData({ ...formData, permanentAddress: e.target.value })}
-                  className="w-full px-4 py-2 border rounded-lg focus:outline-none focus:ring-2 focus:ring-primary-yellow"
+                  className="w-full px-4 py-2 border rounded-lg focus:outline-none focus:ring-2 focus:ring-primary-yellow dark:bg-gray-800"
                   placeholder="Enter permanent address"
                 />
               </div>
@@ -350,13 +333,12 @@ const AddDriverModal = ({ isOpen, onClose, onSave, editingDriver }) => {
             </h3>
             <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
               <div>
-                <label className="block text-sm font-medium mb-1">Vehicle Registration Number *</label>
+                <label className="block text-sm font-medium mb-1">Vehicle Registration Number</label>
                 <input
                   type="text"
-                  required
                   value={formData.vehicleRegNumber}
                   onChange={(e) => setFormData({ ...formData, vehicleRegNumber: e.target.value })}
-                  className="w-full px-4 py-2 border rounded-lg focus:outline-none focus:ring-2 focus:ring-primary-yellow"
+                  className="w-full px-4 py-2 border rounded-lg focus:outline-none focus:ring-2 focus:ring-primary-yellow dark:bg-gray-800 uppercase"
                   placeholder="MH01AB1234"
                 />
               </div>
@@ -365,14 +347,12 @@ const AddDriverModal = ({ isOpen, onClose, onSave, editingDriver }) => {
                 <select
                   value={formData.vehicleType}
                   onChange={(e) => setFormData({ ...formData, vehicleType: e.target.value })}
-                  className="w-full px-4 py-2 border rounded-lg focus:outline-none focus:ring-2 focus:ring-primary-yellow"
+                  className="w-full px-4 py-2 border rounded-lg focus:outline-none focus:ring-2 focus:ring-primary-yellow dark:bg-gray-800"
                 >
                   <option value="Sedan">Sedan</option>
                   <option value="SUV">SUV</option>
                   <option value="Hatchback">Hatchback</option>
                   <option value="Luxury">Luxury</option>
-                  <option value="Auto">Auto</option>
-                  <option value="Bike">Bike</option>
                 </select>
               </div>
               <div>
@@ -381,7 +361,7 @@ const AddDriverModal = ({ isOpen, onClose, onSave, editingDriver }) => {
                   type="text"
                   value={formData.vehicleMake}
                   onChange={(e) => setFormData({ ...formData, vehicleMake: e.target.value })}
-                  className="w-full px-4 py-2 border rounded-lg focus:outline-none focus:ring-2 focus:ring-primary-yellow"
+                  className="w-full px-4 py-2 border rounded-lg focus:outline-none focus:ring-2 focus:ring-primary-yellow dark:bg-gray-800"
                   placeholder="Toyota, Honda, etc."
                 />
               </div>
@@ -391,7 +371,7 @@ const AddDriverModal = ({ isOpen, onClose, onSave, editingDriver }) => {
                   type="text"
                   value={formData.vehicleModel}
                   onChange={(e) => setFormData({ ...formData, vehicleModel: e.target.value })}
-                  className="w-full px-4 py-2 border rounded-lg focus:outline-none focus:ring-2 focus:ring-primary-yellow"
+                  className="w-full px-4 py-2 border rounded-lg focus:outline-none focus:ring-2 focus:ring-primary-yellow dark:bg-gray-800"
                   placeholder="Camry, City, etc."
                 />
               </div>
@@ -401,7 +381,7 @@ const AddDriverModal = ({ isOpen, onClose, onSave, editingDriver }) => {
                   type="number"
                   value={formData.vehicleYear}
                   onChange={(e) => setFormData({ ...formData, vehicleYear: e.target.value })}
-                  className="w-full px-4 py-2 border rounded-lg focus:outline-none focus:ring-2 focus:ring-primary-yellow"
+                  className="w-full px-4 py-2 border rounded-lg focus:outline-none focus:ring-2 focus:ring-primary-yellow dark:bg-gray-800"
                   placeholder="2023"
                 />
               </div>
@@ -420,7 +400,7 @@ const AddDriverModal = ({ isOpen, onClose, onSave, editingDriver }) => {
                   type="text"
                   value={formData.accountHolderName}
                   onChange={(e) => setFormData({ ...formData, accountHolderName: e.target.value })}
-                  className="w-full px-4 py-2 border rounded-lg focus:outline-none focus:ring-2 focus:ring-primary-yellow"
+                  className="w-full px-4 py-2 border rounded-lg focus:outline-none focus:ring-2 focus:ring-primary-yellow dark:bg-gray-800"
                   placeholder="As per bank records"
                 />
               </div>
@@ -430,7 +410,7 @@ const AddDriverModal = ({ isOpen, onClose, onSave, editingDriver }) => {
                   type="text"
                   value={formData.bankName}
                   onChange={(e) => setFormData({ ...formData, bankName: e.target.value })}
-                  className="w-full px-4 py-2 border rounded-lg focus:outline-none focus:ring-2 focus:ring-primary-yellow"
+                  className="w-full px-4 py-2 border rounded-lg focus:outline-none focus:ring-2 focus:ring-primary-yellow dark:bg-gray-800"
                   placeholder="Bank name"
                 />
               </div>
@@ -440,7 +420,7 @@ const AddDriverModal = ({ isOpen, onClose, onSave, editingDriver }) => {
                   type="text"
                   value={formData.accountNumber}
                   onChange={(e) => setFormData({ ...formData, accountNumber: e.target.value })}
-                  className="w-full px-4 py-2 border rounded-lg focus:outline-none focus:ring-2 focus:ring-primary-yellow"
+                  className="w-full px-4 py-2 border rounded-lg focus:outline-none focus:ring-2 focus:ring-primary-yellow dark:bg-gray-800"
                   placeholder="Account number"
                 />
               </div>
@@ -450,24 +430,59 @@ const AddDriverModal = ({ isOpen, onClose, onSave, editingDriver }) => {
                   type="text"
                   value={formData.ifscCode}
                   onChange={(e) => setFormData({ ...formData, ifscCode: e.target.value })}
-                  className="w-full px-4 py-2 border rounded-lg focus:outline-none focus:ring-2 focus:ring-primary-yellow"
+                  className="w-full px-4 py-2 border rounded-lg focus:outline-none focus:ring-2 focus:ring-primary-yellow dark:bg-gray-800"
                   placeholder="IFSC code"
                 />
               </div>
             </div>
           </div>
 
-          {/* Document Uploads */}
+          {/* Document Uploads using FileUpload Component */}
           <div className="space-y-4">
             <h3 className="text-lg font-semibold text-gray-800 dark:text-white flex items-center gap-2">
               📄 Document Uploads
             </h3>
             <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-5 gap-4">
-              <DocumentUploadCard title="Profile Photo" description="Clear face photo" field="profilePhoto" />
-              <DocumentUploadCard title="Aadhar (Front)" description="Front side" field="aadharFront" />
-              <DocumentUploadCard title="Aadhar (Back)" description="Back side" field="aadharBack" />
-              <DocumentUploadCard title="PAN Card" description="PAN card image" field="panImage" />
-              <DocumentUploadCard title="Driving License" description="License image" field="licenseImage" />
+              <FileUpload
+                title="Profile Photo"
+                description="Clear face photo"
+                field="image"
+                folder="drivers"
+                existingUrl={formData.image}
+                onUpload={handleFileUploadComplete}
+              />
+              <FileUpload
+                title="Aadhar (Front)"
+                description="Front side"
+                field="aadharFront"
+                folder="drivers"
+                existingUrl={formData.aadharFront}
+                onUpload={handleFileUploadComplete}
+              />
+              <FileUpload
+                title="Aadhar (Back)"
+                description="Back side"
+                field="aadharBack"
+                folder="drivers"
+                existingUrl={formData.aadharBack}
+                onUpload={handleFileUploadComplete}
+              />
+              <FileUpload
+                title="PAN Card"
+                description="PAN card image"
+                field="panImage"
+                folder="drivers"
+                existingUrl={formData.panImage}
+                onUpload={handleFileUploadComplete}
+              />
+              <FileUpload
+                title="Driving License"
+                description="License image"
+                field="licenseImage"
+                folder="drivers"
+                existingUrl={formData.licenseImage}
+                onUpload={handleFileUploadComplete}
+              />
             </div>
           </div>
 

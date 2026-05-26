@@ -23,14 +23,18 @@ export default defineConfig({
         target: 'http://localhost:3000',
         changeOrigin: true,
         secure: false,
-        rewrite: (path) => path, // Keep the path as is
       },
       '/user': {
         target: 'http://localhost:3000',
         changeOrigin: true,
         secure: false,
       },
-       '/admin': {
+      '/admin': {
+        target: 'http://localhost:3000',
+        changeOrigin: true,
+        secure: false,
+      },
+      '/upload': {
         target: 'http://localhost:3000',
         changeOrigin: true,
         secure: false,

@@ -18,14 +18,14 @@ const AddVehicleModal = ({ isOpen, onClose, onSave, editingVehicle }) => {
     vendorPan: '',
     
     // Vehicle Basic Information
-    plateNumber: '',        // Changed from cabNumber
-    model: '',              // Changed from modelName
+    plateNumber: '',
+    model: '',
     yearOfMaking: new Date().getFullYear(),
-    vehicleType: 'Sedan',   // Changed from type
+    vehicleType: 'Sedan',
     capacity: 4,
     ac: true,
     status: 'active',
-    make: '',               // Added - required field
+    make: '',
     
     // RC Details
     rcNumber: '',
@@ -46,10 +46,10 @@ const AddVehicleModal = ({ isOpen, onClose, onSave, editingVehicle }) => {
     fitnessNumber: '',
     fitnessExpiryDate: '',
     
-    // Rate Information - Required fields
-    baseRatePerKm: 12,      // Required field
-    hourlyRate: 200,        // Required field
-    extraHoursSurchargeRate: 50, // Required field
+    // Rate Information
+    baseRatePerKm: 12,
+    hourlyRate: 200,
+    extraHoursSurchargeRate: 50,
     foodSurchargeAllowance: 0,
     
     // Documents
@@ -164,44 +164,45 @@ const AddVehicleModal = ({ isOpen, onClose, onSave, editingVehicle }) => {
       return;
     }
     
+    // Send data with snake_case field names to match backend
     const vehicleData = {
-      // Required fields
-      plateNumber: formData.plateNumber,
+      // Required fields - snake_case for database
+      plate_number: formData.plateNumber,
       model: formData.model,
       make: formData.make,
-      vehicleType: formData.vehicleType,
-      baseRatePerKm: formData.baseRatePerKm,
-      hourlyRate: formData.hourlyRate,
-      extraHoursSurchargeRate: formData.extraHoursSurchargeRate,
-      foodSurchargeAllowance: formData.foodSurchargeAllowance,
+      vehicle_type: formData.vehicleType,
+      base_rate_per_km: parseInt(formData.baseRatePerKm),
+      hourly_rate: parseInt(formData.hourlyRate),
+      extra_hours_surcharge_rate: parseInt(formData.extraHoursSurchargeRate),
+      food_surcharge_allowance: parseInt(formData.foodSurchargeAllowance),
       
-      // Optional fields
-      vendorName: formData.vendorName,
-      vendorMobile: formData.vendorMobile,
-      vendorEmail: formData.vendorEmail,
-      vendorAddress: formData.vendorAddress,
-      vendorGender: formData.vendorGender,
-      vendorAadhar: formData.vendorAadhar,
-      vendorPan: formData.vendorPan,
-      yearOfMaking: formData.yearOfMaking,
-      capacity: formData.capacity,
+      // Optional fields - snake_case
+      vendor_name: formData.vendorName,
+      vendor_mobile: formData.vendorMobile,
+      vendor_email: formData.vendorEmail,
+      vendor_address: formData.vendorAddress,
+      vendor_gender: formData.vendorGender,
+      vendor_aadhar: formData.vendorAadhar,
+      vendor_pan: formData.vendorPan,
+      year_of_making: formData.yearOfMaking,
+      capacity: parseInt(formData.capacity),
       ac: formData.ac,
       status: formData.status,
-      rcNumber: formData.rcNumber,
-      insuranceNumber: formData.insuranceNumber,
-      insuranceExpiryDate: formData.insuranceExpiryDate,
-      pollutionNumber: formData.pollutionNumber,
-      pollutionExpiryDate: formData.pollutionExpiryDate,
-      permitNumber: formData.permitNumber,
-      permitExpiryDate: formData.permitExpiryDate,
-      fitnessNumber: formData.fitnessNumber,
-      fitnessExpiryDate: formData.fitnessExpiryDate,
-      rcImage: formData.rcImage,
-      insuranceImage: formData.insuranceImage,
-      pollutionImage: formData.pollutionImage,
-      permitImage: formData.permitImage,
-      fitnessImage: formData.fitnessImage,
-      vehicleImages: formData.vehicleImages
+      rc_number: formData.rcNumber,
+      insurance_number: formData.insuranceNumber,
+      insurance_expiry_date: formData.insuranceExpiryDate,
+      pollution_number: formData.pollutionNumber,
+      pollution_expiry_date: formData.pollutionExpiryDate,
+      permit_number: formData.permitNumber,
+      permit_expiry_date: formData.permitExpiryDate,
+      fitness_number: formData.fitnessNumber,
+      fitness_expiry_date: formData.fitnessExpiryDate,
+      rc_image: formData.rcImage,
+      insurance_image: formData.insuranceImage,
+      pollution_image: formData.pollutionImage,
+      permit_image: formData.permitImage,
+      fitness_image: formData.fitnessImage,
+      vehicle_images: formData.vehicleImages
     };
     
     onSave(vehicleData);
@@ -279,7 +280,88 @@ const AddVehicleModal = ({ isOpen, onClose, onSave, editingVehicle }) => {
         </div>
 
         <form onSubmit={handleSubmit} className="p-6 space-y-6">
-          {/* Vehicle Basic Information - Required Fields First */}
+          {/* Vendor Information */}
+          <div className="space-y-3">
+            <h3 className="text-base font-semibold text-gray-800 dark:text-white">Vendor Information</h3>
+            <div className="grid grid-cols-1 md:grid-cols-3 gap-3">
+              <div>
+                <label className="block text-xs font-medium mb-1">Vendor Name *</label>
+                <input
+                  type="text"
+                  required
+                  value={formData.vendorName}
+                  onChange={(e) => setFormData({ ...formData, vendorName: e.target.value })}
+                  className="w-full px-3 py-2 text-sm border rounded-lg focus:outline-none focus:ring-2 focus:ring-primary-yellow dark:bg-gray-800"
+                  placeholder="Enter vendor name"
+                />
+              </div>
+              <div>
+                <label className="block text-xs font-medium mb-1">Mobile Number *</label>
+                <input
+                  type="tel"
+                  required
+                  value={formData.vendorMobile}
+                  onChange={(e) => setFormData({ ...formData, vendorMobile: e.target.value })}
+                  className="w-full px-3 py-2 text-sm border rounded-lg focus:outline-none focus:ring-2 focus:ring-primary-yellow dark:bg-gray-800"
+                  placeholder="10-digit mobile number"
+                />
+              </div>
+              <div>
+                <label className="block text-xs font-medium mb-1">Email</label>
+                <input
+                  type="email"
+                  value={formData.vendorEmail}
+                  onChange={(e) => setFormData({ ...formData, vendorEmail: e.target.value })}
+                  className="w-full px-3 py-2 text-sm border rounded-lg focus:outline-none focus:ring-2 focus:ring-primary-yellow dark:bg-gray-800"
+                  placeholder="vendor@example.com"
+                />
+              </div>
+              <div>
+                <label className="block text-xs font-medium mb-1">Address</label>
+                <input
+                  type="text"
+                  value={formData.vendorAddress}
+                  onChange={(e) => setFormData({ ...formData, vendorAddress: e.target.value })}
+                  className="w-full px-3 py-2 text-sm border rounded-lg focus:outline-none focus:ring-2 focus:ring-primary-yellow dark:bg-gray-800"
+                  placeholder="Enter address"
+                />
+              </div>
+              <div>
+                <label className="block text-xs font-medium mb-1">Gender</label>
+                <select
+                  value={formData.vendorGender}
+                  onChange={(e) => setFormData({ ...formData, vendorGender: e.target.value })}
+                  className="w-full px-3 py-2 text-sm border rounded-lg focus:outline-none focus:ring-2 focus:ring-primary-yellow dark:bg-gray-800"
+                >
+                  <option value="male">Male</option>
+                  <option value="female">Female</option>
+                  <option value="other">Other</option>
+                </select>
+              </div>
+              <div>
+                <label className="block text-xs font-medium mb-1">Aadhar Number</label>
+                <input
+                  type="text"
+                  value={formData.vendorAadhar}
+                  onChange={(e) => setFormData({ ...formData, vendorAadhar: e.target.value })}
+                  className="w-full px-3 py-2 text-sm border rounded-lg focus:outline-none focus:ring-2 focus:ring-primary-yellow dark:bg-gray-800"
+                  placeholder="12-digit Aadhar"
+                />
+              </div>
+              <div>
+                <label className="block text-xs font-medium mb-1">PAN Number</label>
+                <input
+                  type="text"
+                  value={formData.vendorPan}
+                  onChange={(e) => setFormData({ ...formData, vendorPan: e.target.value })}
+                  className="w-full px-3 py-2 text-sm border rounded-lg focus:outline-none focus:ring-2 focus:ring-primary-yellow dark:bg-gray-800"
+                  placeholder="PAN number"
+                />
+              </div>
+            </div>
+          </div>
+
+          {/* Vehicle Basic Information */}
           <div className="space-y-3">
             <h3 className="text-base font-semibold text-gray-800 dark:text-white">Vehicle Information (Required)</h3>
             <div className="grid grid-cols-1 md:grid-cols-3 gap-3">
@@ -422,87 +504,6 @@ const AddVehicleModal = ({ isOpen, onClose, onSave, editingVehicle }) => {
             </div>
           </div>
 
-          {/* Vendor Information */}
-          <div className="space-y-3">
-            <h3 className="text-base font-semibold text-gray-800 dark:text-white">Vendor Information</h3>
-            <div className="grid grid-cols-1 md:grid-cols-3 gap-3">
-              <div>
-                <label className="block text-xs font-medium mb-1">Vendor Name *</label>
-                <input
-                  type="text"
-                  required
-                  value={formData.vendorName}
-                  onChange={(e) => setFormData({ ...formData, vendorName: e.target.value })}
-                  className="w-full px-3 py-2 text-sm border rounded-lg focus:outline-none focus:ring-2 focus:ring-primary-yellow dark:bg-gray-800"
-                  placeholder="Enter vendor name"
-                />
-              </div>
-              <div>
-                <label className="block text-xs font-medium mb-1">Mobile Number *</label>
-                <input
-                  type="tel"
-                  required
-                  value={formData.vendorMobile}
-                  onChange={(e) => setFormData({ ...formData, vendorMobile: e.target.value })}
-                  className="w-full px-3 py-2 text-sm border rounded-lg focus:outline-none focus:ring-2 focus:ring-primary-yellow dark:bg-gray-800"
-                  placeholder="10-digit mobile number"
-                />
-              </div>
-              <div>
-                <label className="block text-xs font-medium mb-1">Email</label>
-                <input
-                  type="email"
-                  value={formData.vendorEmail}
-                  onChange={(e) => setFormData({ ...formData, vendorEmail: e.target.value })}
-                  className="w-full px-3 py-2 text-sm border rounded-lg focus:outline-none focus:ring-2 focus:ring-primary-yellow dark:bg-gray-800"
-                  placeholder="vendor@example.com"
-                />
-              </div>
-              <div>
-                <label className="block text-xs font-medium mb-1">Address</label>
-                <input
-                  type="text"
-                  value={formData.vendorAddress}
-                  onChange={(e) => setFormData({ ...formData, vendorAddress: e.target.value })}
-                  className="w-full px-3 py-2 text-sm border rounded-lg focus:outline-none focus:ring-2 focus:ring-primary-yellow dark:bg-gray-800"
-                  placeholder="Enter address"
-                />
-              </div>
-              <div>
-                <label className="block text-xs font-medium mb-1">Gender</label>
-                <select
-                  value={formData.vendorGender}
-                  onChange={(e) => setFormData({ ...formData, vendorGender: e.target.value })}
-                  className="w-full px-3 py-2 text-sm border rounded-lg focus:outline-none focus:ring-2 focus:ring-primary-yellow dark:bg-gray-800"
-                >
-                  <option value="male">Male</option>
-                  <option value="female">Female</option>
-                  <option value="other">Other</option>
-                </select>
-              </div>
-              <div>
-                <label className="block text-xs font-medium mb-1">Aadhar Number</label>
-                <input
-                  type="text"
-                  value={formData.vendorAadhar}
-                  onChange={(e) => setFormData({ ...formData, vendorAadhar: e.target.value })}
-                  className="w-full px-3 py-2 text-sm border rounded-lg focus:outline-none focus:ring-2 focus:ring-primary-yellow dark:bg-gray-800"
-                  placeholder="12-digit Aadhar"
-                />
-              </div>
-              <div>
-                <label className="block text-xs font-medium mb-1">PAN Number</label>
-                <input
-                  type="text"
-                  value={formData.vendorPan}
-                  onChange={(e) => setFormData({ ...formData, vendorPan: e.target.value })}
-                  className="w-full px-3 py-2 text-sm border rounded-lg focus:outline-none focus:ring-2 focus:ring-primary-yellow dark:bg-gray-800"
-                  placeholder="PAN number"
-                />
-              </div>
-            </div>
-          </div>
-
           {/* RC Details */}
           <div className="space-y-3">
             <h3 className="text-base font-semibold text-gray-800 dark:text-white">RC Details</h3>
@@ -521,7 +522,7 @@ const AddVehicleModal = ({ isOpen, onClose, onSave, editingVehicle }) => {
             </div>
           </div>
 
-          {/* Registration Documents with Expiry Alerts */}
+          {/* Registration Documents */}
           <div className="space-y-3">
             <h3 className="text-base font-semibold text-gray-800 dark:text-white">Registration Documents</h3>
             
