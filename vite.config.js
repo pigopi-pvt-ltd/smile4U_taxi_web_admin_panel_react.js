@@ -20,22 +20,22 @@ export default defineConfig({
     open: true,
     proxy: {
       "/auth": {
-        target: "http://p69ewng0uhoyo2jaeq93jpjb.82.29.164.173.sslip.io",
+        target: "http://localhost:3000",
         changeOrigin: true,
         secure: false,
       },
       "/user": {
-        target: "http://p69ewng0uhoyo2jaeq93jpjb.82.29.164.173.sslip.io",
+        target: "http://localhost:3000",
         changeOrigin: true,
         secure: false,
       },
       "/admin": {
-        target: "http://p69ewng0uhoyo2jaeq93jpjb.82.29.164.173.sslip.io",
+        target: "http://localhost:3000",
         changeOrigin: true,
         secure: false,
       },
       "/upload": {
-        target: "http://p69ewng0uhoyo2jaeq93jpjb.82.29.164.173.sslip.io",
+        target: "http://localhost:3000",
         changeOrigin: true,
         secure: false,
       },

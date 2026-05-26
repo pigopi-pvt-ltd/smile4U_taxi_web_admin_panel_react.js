@@ -3,7 +3,7 @@ import toast from "react-hot-toast";
 
 // Use empty baseURL to use Vite proxy
 const api = axios.create({
-  baseURL: "http://p69ewng0uhoyo2jaeq93jpjb.82.29.164.173.sslip.io", // Empty = use current origin (localhost:5000) with proxy
+  baseURL: "https://p69ewng0uhoyo2jaeq93jpjb.82.29.164.173.sslip.io", // Empty = use current origin (localhost:5000) with proxy
   withCredentials: true,
   headers: {
     "Content-Type": "application/json",
