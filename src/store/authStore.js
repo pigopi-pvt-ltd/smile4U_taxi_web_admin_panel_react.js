@@ -1,28 +1,34 @@
+
 import { create } from 'zustand';
 import authService from '../services/authService';
 import toast from 'react-hot-toast';
 
 const useAuthStore = create((set, get) => ({
   user: null,
-  isAuthenticated: false,
   loading: false,
+  isAuthenticated: false,
 
   login: async (identifier, password) => {
     set({ loading: true });
     try {
       const response = await authService.login(identifier, password);
-      // Get user profile after successful login
-      const userResponse = await authService.getCurrentUser();
+      const { user, accessToken } = response.data;
+      
+      // Store token and user
+      localStorage.setItem('accessToken', accessToken);
+      localStorage.setItem('user', JSON.stringify(user));
+      
       set({ 
-        user: userResponse.data, 
+        user: user, 
         isAuthenticated: true, 
         loading: false 
       });
-      toast.success('Login successful!');
+      
+      toast.success(`Welcome back, ${user.name}!`);
       return true;
     } catch (error) {
+      console.error('Login error:', error);
       set({ loading: false });
-      toast.error(error.response?.data?.message || 'Login failed');
       return false;
     }
   },
@@ -33,48 +39,38 @@ const useAuthStore = create((set, get) => ({
     } catch (error) {
       console.error('Logout error:', error);
     } finally {
+      localStorage.removeItem('accessToken');
+      localStorage.removeItem('user');
       set({ user: null, isAuthenticated: false });
       toast.success('Logged out successfully');
+      window.location.href = '/login';
     }
+  },
+
+  checkAuth: () => {
+    const token = localStorage.getItem('accessToken');
+    const user = localStorage.getItem('user');
+    
+    if (token && user) {
+      set({ 
+        user: JSON.parse(user), 
+        isAuthenticated: true 
+      });
+      return true;
+    }
+    return false;
   },
 
   getCurrentUser: async () => {
-    set({ loading: true });
     try {
       const response = await authService.getCurrentUser();
-      set({ user: response.data, isAuthenticated: true, loading: false });
-      return response.data;
+      const user = response.data;
+      localStorage.setItem('user', JSON.stringify(user));
+      set({ user, isAuthenticated: true });
+      return user;
     } catch (error) {
-      set({ user: null, isAuthenticated: false, loading: false });
+      console.error('Get current user error:', error);
       return null;
-    }
-  },
-
-  registerCustomer: async (userData) => {
-    set({ loading: true });
-    try {
-      const response = await authService.registerCustomer(userData);
-      toast.success('Registration successful! Please verify your email.');
-      set({ loading: false });
-      return response.data;
-    } catch (error) {
-      set({ loading: false });
-      toast.error(error.response?.data?.message || 'Registration failed');
-      throw error;
-    }
-  },
-
-  verifyEmail: async (email, otp) => {
-    set({ loading: true });
-    try {
-      const response = await authService.verifyEmail(email, otp);
-      toast.success('Email verified successfully!');
-      set({ loading: false });
-      return response.data;
-    } catch (error) {
-      set({ loading: false });
-      toast.error(error.response?.data?.message || 'Verification failed');
-      throw error;
     }
   },
 }));

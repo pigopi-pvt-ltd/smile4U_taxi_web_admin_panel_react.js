@@ -17,8 +17,17 @@ const authService = {
   },
 
   // Login user
-  login: (identifier, password) => {
-    return api.post('/auth/login', { identifier, password });
+  login: async (identifier, password) => {
+    console.log('AuthService: Attempting login with:', { identifier });
+    try {
+      const response = await api.post('/auth/login', { identifier, password });
+      console.log('AuthService: Login response status:', response.status);
+      console.log('AuthService: Login response data:', response.data);
+      return response;
+    } catch (error) {
+      console.error('AuthService: Login API error:', error.response?.data || error.message);
+      throw error;
+    }
   },
 
   // Refresh access token

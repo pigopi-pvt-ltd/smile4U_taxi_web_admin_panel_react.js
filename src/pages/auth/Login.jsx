@@ -3,6 +3,7 @@ import logo from '../../assets/logo.jpg';
 import { useNavigate } from 'react-router-dom';
 import { HiMail, HiLockClosed, HiEye, HiEyeOff } from 'react-icons/hi';
 import useAuthStore from '../../store/authStore';
+import toast from 'react-hot-toast';
 
 const Login = () => {
   const navigate = useNavigate();
@@ -15,9 +16,30 @@ const Login = () => {
 
   const handleSubmit = async (e) => {
     e.preventDefault();
-    const success = await login(formData.identifier, formData.password);
-    if (success) {
-      navigate('/dashboard');
+    
+    console.log('=== LOGIN ATTEMPT ===');
+    console.log('Identifier:', formData.identifier);
+    console.log('Password length:', formData.password?.length);
+    console.log('API URL:', import.meta.env.VITE_API_URL);
+    
+    if (!formData.identifier || !formData.password) {
+      toast.error('Please enter both email/phone and password');
+      return;
+    }
+    
+    try {
+      const success = await login(formData.identifier, formData.password);
+      console.log('Login result:', success);
+      
+      if (success) {
+        console.log('Login successful, navigating to dashboard');
+        navigate('/dashboard');
+      } else {
+        console.log('Login failed - check credentials');
+      }
+    } catch (error) {
+      console.error('Login error in component:', error);
+      toast.error('Login failed. Please try again.');
     }
   };
 
@@ -42,7 +64,7 @@ const Login = () => {
           {/* Form */}
           <form onSubmit={handleSubmit} className="space-y-4">
             
-            {/* Email Field */}
+            {/* Email/Phone Field */}
             <div>
               <label className="block text-sm font-medium text-gray-300 mb-1.5">
                 Email or Phone
@@ -54,7 +76,7 @@ const Login = () => {
                   value={formData.identifier}
                   onChange={(e) => setFormData({ ...formData, identifier: e.target.value })}
                   className="w-full pl-10 pr-4 py-2.5 bg-white/10 border border-gray-600 rounded-xl text-white text-sm placeholder-gray-400 focus:outline-none focus:border-primary-yellow transition-all"
-                  placeholder="admin@smile4u.com"
+                  placeholder="admin@smile4u.com or 9876543210"
                   required
                 />
               </div>
