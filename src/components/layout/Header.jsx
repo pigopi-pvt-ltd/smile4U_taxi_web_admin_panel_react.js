@@ -6,7 +6,7 @@ import useAuthStore from '../../store/authStore'
 const Header = ({ onMenuClick }) => {
   const [isOpen, setIsOpen] = useState(false)
   const { user, logout } = useAuthStore()
-  const [isDark, setIsDark] = useState(true)
+  const [isDark, setIsDark] = useState(false) 
   const dropdownRef = useRef(null)
   const navigate = useNavigate()
 
@@ -70,7 +70,7 @@ const Header = ({ onMenuClick }) => {
                 <HiOutlineUser /> Profile
               </button>
               <button onClick={handleLogout} className="w-full px-4 py-2 text-left hover:bg-gray-100 dark:hover:bg-gray-700 flex items-center gap-2 text-red-600">
-                < HiOutlineArrowRightOnRectangle /> Logout
+                <HiOutlineArrowRightOnRectangle /> Logout
               </button>
             </div>
           )}

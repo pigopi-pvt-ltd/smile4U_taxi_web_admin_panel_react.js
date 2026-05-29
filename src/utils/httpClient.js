@@ -39,7 +39,7 @@ api.interceptors.response.use(
     
     if (error.code === "ERR_NETWORK") {
       console.error("Network error - Backend might not be running");
-      toast.error("Cannot connect to server. Make sure backend is running on port 3000");
+      toast.error("Cannot connect to server. Make sure backend is running");
     } else if (error.response?.status === 401) {
       toast.error("Session expired. Please login again.");
       localStorage.removeItem("accessToken");
