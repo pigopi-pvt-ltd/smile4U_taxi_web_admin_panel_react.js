@@ -1,6 +1,6 @@
 import httpClient from '../utils/httpClient';
 
-const API_URL = '/admin/vehicles';
+const API_URL = '/vehicles';
 
 export const vehicleService = {
   // Get all vehicles

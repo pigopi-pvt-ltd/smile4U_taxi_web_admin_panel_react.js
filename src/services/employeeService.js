@@ -1,7 +1,6 @@
 import api from '../utils/httpClient';
 
-// Your backend routes are at /admin/employees (no /api prefix)
-const API_URL = '/admin/employees';
+const API_URL = '/employees';
 
 export const employeeService = {
   // Get all employees

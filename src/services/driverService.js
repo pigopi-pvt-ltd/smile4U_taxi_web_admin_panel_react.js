@@ -1,7 +1,6 @@
 import api from '../utils/httpClient';
 
-// Your backend routes are at /admin/drivers (no /api prefix)
-const API_URL = '/admin/drivers';
+const API_URL = '/drivers';
 
 export const driverService = {
   // Get all drivers
@@ -20,11 +19,11 @@ export const driverService = {
   delete: (id) => api.delete(`${API_URL}/${id}`),
   
   // Update KYC status
-  updateKYC: (data) => api.put('/admin/drivers/kyc/update', data),
+  updateKYC: (data) => api.put(`${API_URL}/kyc/update`, data),
   
   // Get available drivers
-  getAvailable: () => api.get('/admin/drivers/available'),
+  getAvailable: () => api.get(`${API_URL}/available`),
   
   // Get driver statistics
-  getStats: () => api.get('/admin/drivers/stats'),
+  getStats: () => api.get(`${API_URL}/stats`),
 };
