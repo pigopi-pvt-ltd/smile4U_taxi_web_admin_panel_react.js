@@ -14,6 +14,7 @@ export const useVehicles = () => {
       const response = await vehicleService.getAll();
       const data = response?.data;
       
+      // Handle diverse collection data payloads sent from production environments
       let vehiclesArray = [];
       if (Array.isArray(data)) {
         vehiclesArray = data;
@@ -26,7 +27,7 @@ export const useVehicles = () => {
       setVehicles(vehiclesArray);
       setError(null);
     } catch (err) {
-      console.error('CRITICAL PRODUCTION ERROR [Vehicles]:', {
+      console.error('CRITICAL PRODUCTION INTERCEPTOR OVERRIDE LOG [Vehicles]:', {
         status: err.response?.status,
         data: err.response?.data,
         message: err.message
@@ -51,6 +52,7 @@ export const useVehicles = () => {
       await fetchVehicles();
       return response.data;
     } catch (err) {
+      console.error('Error adding vehicle form payload:', err);
       toast.error(err.response?.data?.message || 'Failed to add vehicle');
       return null;
     }
