@@ -8,15 +8,14 @@ export const useDrivers = () => {
   const [refreshing, setRefreshing] = useState(false);
   const [error, setError] = useState(null);
 
-  const fetchDrivers = useCallback(async () => {
-    setLoading(true);
+  const fetchDrivers = useCallback(async (isSilentRefresh = false) => {
+    if (!isSilentRefresh) setLoading(true);
     try {
       const response = await driverService.getAll();
       setDrivers(Array.isArray(response.data) ? response.data : []);
       setError(null);
     } catch (err) {
       setError(err.response?.data?.message || 'Failed to fetch drivers');
-      toast.error('Failed to fetch drivers');
     } finally {
       setLoading(false);
       setRefreshing(false);
@@ -25,32 +24,39 @@ export const useDrivers = () => {
 
   const refresh = useCallback(() => {
     setRefreshing(true);
-    fetchDrivers();
+    fetchDrivers(true);
   }, [fetchDrivers]);
 
   const addDriver = useCallback(async (driverData) => {
     try {
       const response = await driverService.create(driverData);
       toast.success('Driver added successfully!');
-      if (response.data.temporaryPassword) {
+      if (response.data?.temporaryPassword) {
         toast.success(`Temporary Password: ${response.data.temporaryPassword}`, { duration: 10000 });
       }
-      await fetchDrivers();
+      await fetchDrivers(true);
       return true;
     } catch (err) {
-      toast.error(err.response?.data?.message || 'Failed to add driver');
       return false;
     }
   }, [fetchDrivers]);
 
   const updateDriver = useCallback(async (id, driverData) => {
     try {
-      await driverService.update(id, driverData);
+      // Flatten nested properties if data comes straight from a table row selection
+      const payload = {
+        name: driverData.name,
+        email: driverData.email,
+        phone: driverData.phone,
+        image: driverData.image,
+        ...driverData.driverDetails
+      };
+
+      await driverService.update(id, payload);
       toast.success('Driver updated successfully!');
-      await fetchDrivers();
+      await fetchDrivers(true);
       return true;
     } catch (err) {
-      toast.error(err.response?.data?.message || 'Failed to update driver');
       return false;
     }
   }, [fetchDrivers]);
@@ -60,10 +66,9 @@ export const useDrivers = () => {
     try {
       await driverService.delete(id);
       toast.success('Driver deleted successfully');
-      await fetchDrivers();
+      await fetchDrivers(true);
       return true;
     } catch (err) {
-      toast.error(err.response?.data?.message || 'Failed to delete driver');
       return false;
     }
   }, [fetchDrivers]);
@@ -71,11 +76,10 @@ export const useDrivers = () => {
   const updateKYC = useCallback(async (userId, verificationStatus, rejectionReason) => {
     try {
       await driverService.updateKYC({ userId, verificationStatus, rejectionReason });
-      toast.success(`KYC ${verificationStatus} successfully`);
-      await fetchDrivers();
+      toast.success(`KYC updated to ${verificationStatus} successfully`);
+      await fetchDrivers(true);
       return true;
     } catch (err) {
-      toast.error(err.response?.data?.message || 'Failed to update KYC');
       return false;
     }
   }, [fetchDrivers]);

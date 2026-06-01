@@ -36,11 +36,15 @@ const Drivers = () => {
     }
   };
 
-  const filteredDrivers = drivers.filter(driver =>
-    driver.name?.toLowerCase().includes(searchTerm.toLowerCase()) ||
-    driver.email?.toLowerCase().includes(searchTerm.toLowerCase()) ||
-    driver.mobileNumber?.includes(searchTerm)
-  );
+  const filteredDrivers = drivers ? drivers.filter(driver => {
+    const normalizeSearch = searchTerm.toLowerCase();
+    return (
+      driver.name?.toLowerCase().includes(normalizeSearch) ||
+      driver.email?.toLowerCase().includes(normalizeSearch) ||
+      driver.mobileNumber?.includes(searchTerm) ||
+      driver.driverDetails?.licenseNumber?.toLowerCase().includes(normalizeSearch)
+    );
+  }) : [];
 
   if (loading) {
     return (
@@ -53,7 +57,7 @@ const Drivers = () => {
           </div>
         </div>
         <div className="p-4 md:p-8">
-          <div className="bg-white dark:bg-[#0A1128] rounded-3xl border shadow-sm overflow-hidden animate-pulse">
+          <div className="bg-white dark:bg-[#0A1128] rounded-3xl border shadow-sm overflow-hidden">
             {[...Array(10)].map((_, i) => (
               <div key={i} className="px-6 py-4 border-b flex items-center gap-6">
                 <div className="h-4 w-12 bg-slate-100 rounded"></div>
@@ -81,7 +85,7 @@ const Drivers = () => {
                 setEditingDriver(null);
                 setIsAddModalOpen(true);
               }}
-              className="bg-indigo-600 hover:bg-indigo-700 text-white px-3 py-1.5 md:px-5 md:py-2 rounded-lg font-bold text-[10px] md:text-sm"
+              className="bg-indigo-600 hover:bg-indigo-700 text-white px-3 py-1.5 md:px-5 md:py-2 rounded-lg font-bold text-[10px] md:text-sm transition-colors"
             >
               <HiPlus className="text-lg md:hidden" />
               <span className="hidden md:inline">Add Driver</span>
@@ -95,10 +99,10 @@ const Drivers = () => {
             <HiSearch className="absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-400 text-lg" />
             <input
               type="text"
-              placeholder="Search by name, email or phone..."
+              placeholder="Search by name, email, phone or license..."
               value={searchTerm}
               onChange={(e) => setSearchTerm(e.target.value)}
-              className="w-full pl-10 pr-4 py-2 bg-white dark:bg-gray-800 border border-gray-200 dark:border-gray-700 rounded-xl focus:outline-none focus:ring-2 focus:ring-primary-yellow"
+              className="w-full pl-10 pr-4 py-2 bg-white dark:bg-gray-800 border border-gray-200 dark:border-gray-700 rounded-xl focus:outline-none focus:ring-2 focus:ring-indigo-500"
             />
           </div>
         </div>
@@ -109,25 +113,26 @@ const Drivers = () => {
               <table className="w-full">
                 <thead className="bg-gray-50 dark:bg-gray-900/50">
                   <tr>
-                    <th className="px-6 py-4 text-left text-xs font-semibold text-gray-500 uppercase">Driver</th>
-                    <th className="px-6 py-4 text-left text-xs font-semibold text-gray-500 uppercase">Contact</th>
-                    <th className="px-6 py-4 text-left text-xs font-semibold text-gray-500 uppercase">License</th>
-                    <th className="px-6 py-4 text-left text-xs font-semibold text-gray-500 uppercase">Experience</th>
-                    <th className="px-6 py-4 text-left text-xs font-semibold text-gray-500 uppercase">Status</th>
-                    <th className="px-6 py-4 text-left text-xs font-semibold text-gray-500 uppercase">KYC</th>
-                    <th className="px-6 py-4 text-left text-xs font-semibold text-gray-500 uppercase">Actions</th>
+                    <th className="px-6 py-4 text-left text-xs font-semibold text-gray-500 uppercase tracking-wider">Driver</th>
+                    <th className="px-6 py-4 text-left text-xs font-semibold text-gray-500 uppercase tracking-wider">Contact</th>
+                    <th className="px-6 py-4 text-left text-xs font-semibold text-gray-500 uppercase tracking-wider">License</th>
+                    <th className="px-6 py-4 text-left text-xs font-semibold text-gray-500 uppercase tracking-wider">Experience</th>
+                    <th className="px-6 py-4 text-left text-xs font-semibold text-gray-500 uppercase tracking-wider">Status</th>
+                    <th className="px-6 py-4 text-left text-xs font-semibold text-gray-500 uppercase tracking-wider">KYC</th>
+                    <th className="px-6 py-4 text-left text-xs font-semibold text-gray-500 uppercase tracking-wider">Actions</th>
                   </tr>
                 </thead>
                 <tbody className="divide-y divide-gray-100 dark:divide-gray-700">
                   {filteredDrivers.map((driver) => (
-                    <tr key={driver._id} className="hover:bg-gray-50 transition-colors">
+                    // Fixed: Updated mapping boundary key evaluation targets to driver.id
+                    <tr key={driver.id} className="hover:bg-gray-50 dark:hover:bg-gray-800/30 transition-colors">
                       <td className="px-6 py-4 whitespace-nowrap">
                         <div className="flex items-center gap-3">
                           {driver.image ? (
                             <img src={driver.image} alt={driver.name} className="w-10 h-10 rounded-full object-cover" />
                           ) : (
-                            <div className="w-10 h-10 rounded-full bg-primary-yellow/20 flex items-center justify-center">
-                              <span className="text-primary-yellow font-bold">{getInitials(driver.name)}</span>
+                            <div className="w-10 h-10 rounded-full bg-indigo-100 dark:bg-indigo-900/30 flex items-center justify-center">
+                              <span className="text-indigo-600 dark:text-indigo-400 font-bold">{getInitials(driver.name)}</span>
                             </div>
                           )}
                           <div>
@@ -136,14 +141,14 @@ const Drivers = () => {
                         </div>
                       </td>
                       <td className="px-6 py-4">
-                        <p className="text-sm">{driver.email}</p>
+                        <p className="text-sm text-gray-800 dark:text-gray-200">{driver.email || 'No Email'}</p>
                         <p className="text-xs text-gray-500">{driver.mobileNumber}</p>
                       </td>
                       <td className="px-6 py-4">
-                        <p className="text-sm font-mono">{driver.driverDetails?.licenseNumber || '-'}</p>
+                        <p className="text-sm font-mono text-gray-700 dark:text-gray-300">{driver.driverDetails?.licenseNumber || '-'}</p>
                       </td>
                       <td className="px-6 py-4">
-                        <p className="text-sm">{driver.driverDetails?.yearsOfExperience || 0} yrs</p>
+                        <p className="text-sm text-gray-700 dark:text-gray-300">{driver.driverDetails?.yearsOfExperience || 0} yrs</p>
                       </td>
                       <td className="px-6 py-4">
                         <span className={`inline-flex px-2 py-1 text-xs font-semibold rounded-full ${
@@ -155,7 +160,7 @@ const Drivers = () => {
                         </span>
                       </td>
                       <td className="px-6 py-4">
-                        <span className={`inline-flex px-2 py-1 text-xs font-semibold rounded-full ${getStatusColor(driver.driverDetails?.verificationStatus)}`}>
+                        <span className={`inline-flex px-2 py-1 text-xs font-semibold rounded-full border ${getStatusColor(driver.driverDetails?.verificationStatus)}`}>
                           {driver.driverDetails?.verificationStatus?.toUpperCase() || 'PENDING'}
                         </span>
                       </td>
@@ -166,7 +171,8 @@ const Drivers = () => {
                               setSelectedDriver(driver);
                               setIsDetailsModalOpen(true);
                             }}
-                            className="p-2 text-gray-500 hover:text-primary-yellow rounded-lg"
+                            className="p-2 text-gray-500 hover:text-indigo-600 dark:hover:text-indigo-400 rounded-lg transition-colors"
+                            title="View Details"
                           >
                             <HiOutlineEye className="text-lg" />
                           </button>
@@ -175,13 +181,15 @@ const Drivers = () => {
                               setEditingDriver(driver);
                               setIsAddModalOpen(true);
                             }}
-                            className="p-2 text-gray-500 hover:text-blue-500 rounded-lg"
+                            className="p-2 text-gray-500 hover:text-blue-500 rounded-lg transition-colors"
+                            title="Edit Driver"
                           >
                             <HiPencil className="text-lg" />
                           </button>
                           <button
-                            onClick={() => deleteDriver(driver._id, driver.name)}
-                            className="p-2 text-gray-500 hover:text-red-500 rounded-lg"
+                            onClick={() => deleteDriver(driver.id, driver.name)}
+                            className="p-2 text-gray-500 hover:text-red-500 rounded-lg transition-colors"
+                            title="Delete Driver"
                           >
                             <HiTrash className="text-lg" />
                           </button>
@@ -189,6 +197,13 @@ const Drivers = () => {
                       </td>
                     </tr>
                   ))}
+                  {filteredDrivers.length === 0 && (
+                    <tr>
+                      <td colSpan="7" className="px-6 py-10 text-center text-gray-500 dark:text-gray-400">
+                        No drivers registered in the system registry match the view filters.
+                      </td>
+                    </tr>
+                  )}
                 </tbody>
               </table>
             </div>
@@ -201,7 +216,7 @@ const Drivers = () => {
             setIsAddModalOpen(false);
             setEditingDriver(null);
           }}
-          onSave={editingDriver ? (data) => updateDriver(editingDriver._id, data) : addDriver}
+          onSave={editingDriver ? (data) => updateDriver(editingDriver.id, data) : addDriver}
           editingDriver={editingDriver}
         />
 

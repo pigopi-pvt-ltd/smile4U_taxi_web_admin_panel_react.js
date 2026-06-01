@@ -12,11 +12,27 @@ export const useVehicles = () => {
     setLoading(true);
     try {
       const response = await vehicleService.getAll();
-      setVehicles(Array.isArray(response.data) ? response.data : []);
+      const data = response?.data;
+      
+      let vehiclesArray = [];
+      if (Array.isArray(data)) {
+        vehiclesArray = data;
+      } else if (data && Array.isArray(data.data)) {
+        vehiclesArray = data.data;
+      } else if (data && Array.isArray(data.vehicles)) {
+        vehiclesArray = data.vehicles;
+      }
+
+      setVehicles(vehiclesArray);
       setError(null);
     } catch (err) {
+      console.error('CRITICAL PRODUCTION ERROR [Vehicles]:', {
+        status: err.response?.status,
+        data: err.response?.data,
+        message: err.message
+      });
       setError(err.response?.data?.message || 'Failed to fetch vehicles');
-      toast.error('Failed to fetch vehicles');
+      toast.error(err.response?.data?.message || 'Failed to fetch vehicles');
     } finally {
       setLoading(false);
       setRefreshing(false);
