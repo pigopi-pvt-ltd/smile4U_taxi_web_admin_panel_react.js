@@ -6,50 +6,46 @@ const API_URL = import.meta.env.VITE_API_URL || "http://p69ewng0uhoyo2jaeq93jpjb
 const api = axios.create({
   baseURL: API_URL,
   withCredentials: true,
-  headers: {
-    "Content-Type": "application/json",
-  },
+  headers: { "Content-Type": "application/json" },
 });
 
+// Request interceptor – logs token presence
 api.interceptors.request.use(
   (config) => {
     const token = localStorage.getItem("accessToken");
     if (token) {
       config.headers.Authorization = `Bearer ${token}`;
     }
-    console.log(`📤 API Request: ${config.method?.toUpperCase()} ${config.url}`);
+    console.log(`📤 ${config.method?.toUpperCase()} ${config.url}`);
+    console.log(`   Auth header: ${config.headers.Authorization ? "✅ present" : "❌ missing"}`);
     return config;
   },
   (error) => Promise.reject(error)
 );
 
+// Response interceptor – logs 401/403 but does NOT logout
 api.interceptors.response.use(
-  (response) => {
-    console.log(`📥 API Response: ${response.config.url} - Status: ${response.status}`);
-    return response;
-  },
+  (response) => response,
   (error) => {
-    console.error("API Error Response:", error.response);
+    const status = error.response?.status;
+    const url = error.config?.url;
 
+    if (status === 401 || status === 403) {
+      console.error(`🚨 AUTH ERROR (${status}) on ${url}`);
+      console.error("   Response body:", error.response?.data);
+      console.error("   Token from localStorage:", localStorage.getItem("accessToken")?.slice(0, 30) + "...");
+      //  DO NOT clear tokens or redirect 
+      toast.error(`Auth failed: ${error.response?.data?.message || status}`);
+      return Promise.reject(error);
+    }
+
+    // Other errors (network, 500, etc.)
     if (error.code === "ERR_NETWORK") {
-      toast.error("Cannot connect to server. Verify your backend is running.");
-    } else if (error.response?.status === 401) {
-      // Session expired or token invalid in production
-      toast.error("Session expired. Please log in again.");
-      localStorage.removeItem("accessToken");
-      localStorage.removeItem("refreshToken");
-      localStorage.removeItem("user");
-      
-      // Delay slightly so the user can read why they got logged out
-      setTimeout(() => {
-        window.location.href = "/login";
-      }, 1500);
-    } else if (error.response?.status === 403) {
-      toast.error("You do not have permission to view this resource.");
+      toast.error("Cannot connect to server.");
     } else if (error.response?.data?.message) {
       toast.error(error.response.data.message);
     } else {
-      toast.error("Something went wrong. Please try again.");
+      toast.error("Something went wrong.");
     }
     return Promise.reject(error);
   }
